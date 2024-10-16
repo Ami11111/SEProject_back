@@ -64,6 +64,7 @@ create table if not exists `author_paper` (
  `seq` bit(2) not null comment '第一二三作者00,01,10',
  primary key (`a_id`,`p_id`),
  constraint `author_paper1` foreign key(`a_id`) references `user`(`id`), 
+ constraint `author_paper2` foreign key(`p_id`) references `paper`(`id`), 
  index `a_id` (`a_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
