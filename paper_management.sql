@@ -38,7 +38,7 @@ drop table if exists `paper`;
 create table if not exists `paper` (
   `id` varchar(50) primary key,
   `title` varchar(255) not null,
-  `abstract` text comment '摘要',
+  `Abstract` text comment '摘要',
   `keywords` varchar(255) comment '关键词',
   `publication_data` date comment '发表时间',
   `page_count` int comment '论文页数',
