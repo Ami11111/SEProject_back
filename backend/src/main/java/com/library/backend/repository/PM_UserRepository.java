@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface PM_UserRepository extends JpaRepository<PM_User, String> {
 
+    int countByNameAndPassword(String name, String password);
+
     PM_User findByName(String name);
 
     @Transactional

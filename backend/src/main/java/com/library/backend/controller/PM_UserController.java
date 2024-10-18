@@ -3,6 +3,7 @@ package com.library.backend.controller;
 import com.library.backend.entity.PM_User;
 import com.library.backend.model.Result;
 import com.library.backend.repository.PM_UserRepository;
+import com.library.backend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,24 @@ public class PM_UserController {
 
     @Autowired
     private PM_UserRepository userRepository;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @PostMapping("/login")
+    public Result login(@RequestBody PM_User user) {
+        try {
+            int cnt = userRepository.countByNameAndPassword(user.getName(),user.getPassword());
+            if (cnt == 0) {
+                return new Result(FAILE_CODE, "用户名或密码错误");
+            }
+            String jwtToken = jwtUtil.generateToken(user.getName());
+            return new Result(SUCCESS_CODE, "验证成功", jwtToken);
+        } catch (Exception e) {
+
+            return new Result(FAILE_CODE, e.toString(), user);
+        }
+    }
 
     @GetMapping("/list")
     public Result managerLogin(PM_User user) {
