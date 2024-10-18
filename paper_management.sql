@@ -17,7 +17,7 @@ drop table if exists `user`;
 create table if not exists `user` (
   `id` int unsigned primary key comment '工号，主键',
   `password` varchar(25) not null,
-  `username` varchar(50) default null comment '姓名，论文作者必须维护姓名信息',
+  `name` varchar(50) default null comment '姓名，论文作者必须维护姓名信息',
   `email` varchar(50) default null,
   `phone` varchar(25) default null comment '电话，限制一个',
   `address` varchar(100) default null,
