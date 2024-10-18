@@ -14,7 +14,7 @@ import java.util.List;
 import static com.library.backend.utils.Constant.*;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/pm_user")
 public class PM_UserController {
 
     @Autowired
