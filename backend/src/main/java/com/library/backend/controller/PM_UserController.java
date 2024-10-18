@@ -119,11 +119,11 @@ public class PM_UserController {
         }
     }
 
-    @GetMapping("/usr/username")
-    public ResponseEntity<Object> setNewUsrName(PM_User usr) {
+    @PatchMapping ("/usr/username")
+    public ResponseEntity<Object> updateNewUserName(PM_User usr) {
         Map<String, Object> response = new HashMap<>();
         try {
-            userRepository.updateUsernameById(usr.getUsername(), loginUsr.getId());
+            userRepository.updateUsernameById(loginUsr.getId(), usr.getUsername());
             response.put("username", usr.getUsername());
             response.put("message", "Username updated successfully");
             return new ResponseEntity<>(response, HttpStatus.OK);
