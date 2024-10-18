@@ -4,6 +4,8 @@ import com.library.backend.entity.PM_User;
 import com.library.backend.model.Result;
 import com.library.backend.repository.PM_UserRepository;
 import com.library.backend.utils.JwtUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import java.util.Map;
 import static com.library.backend.utils.Constant.*;
 
 @RestController
+@Api(tags = "登录验证与用户管理")
 @RequestMapping("/api")
 public class PM_UserController {
 
@@ -27,17 +30,22 @@ public class PM_UserController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/login")
+    @ApiOperation(value = "用户登录")
     public ResponseEntity<Object> login(@RequestBody PM_User user) {
         try {
+            // Map存储返回信息的键值对，Spring框架会自动转换为JSON格式返回给前端
             Map<String, Object> response = new HashMap<>();
             int cnt = userRepository.countByUsernameAndPassword(user.getUsername(), user.getPassword());
             if (cnt == 0) {
                 response.put("message", "用户名或密码错误");
+                // 返回一个 ResponseEntity 对象，包含响应体和状态码
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
             }
+            // 根据用户名生成 JWT Token， 只在登录成功时生成，后续操作由JWT过滤器自动校验前端发来的Token
             String jwtToken = jwtUtil.generateToken(user.getUsername());
             response.put("token", jwtToken);
             response.put("user", userRepository.findByUsername(user.getUsername()));
+            // 返回一个 ResponseEntity 对象，包含响应体和状态码
             return new ResponseEntity<>(response, HttpStatus.OK); // 200 状态码
         } catch (Exception e) {
 
