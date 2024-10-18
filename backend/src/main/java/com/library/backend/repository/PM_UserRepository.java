@@ -8,12 +8,12 @@ import java.util.List;
 
 public interface PM_UserRepository extends JpaRepository<PM_User, String> {
 
-    int countByNameAndPassword(String name, String password);
+    int countByUsernameAndPassword(String name, String password);
 
-    PM_User findByName(String name);
+    PM_User findByUsername(String name);
 
     @Transactional
     void deleteById(int id);
 
-    List<PM_User> findAllByNameContaining(String name);
+    List<PM_User> findAllByUsernameContaining(String name);
 }

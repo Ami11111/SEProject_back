@@ -25,12 +25,12 @@ public class PM_UserController {
     @PostMapping("/login")
     public Result login(@RequestBody PM_User user) {
         try {
-            int cnt = userRepository.countByNameAndPassword(user.getName(),user.getPassword());
+            int cnt = userRepository.countByUsernameAndPassword(user.getUsername(),user.getPassword());
             if (cnt == 0) {
                 return new Result(FAILE_CODE, "用户名或密码错误");
             }
-            String jwtToken = jwtUtil.generateToken(user.getName());
-            return new Result(SUCCESS_CODE, "验证成功", jwtToken);
+            String jwtToken = jwtUtil.generateToken(user.getUsername());
+            return new Result(SUCCESS_CODE, "验证成功", userRepository.findByUsername(user.getUsername()));
         } catch (Exception e) {
 
             return new Result(FAILE_CODE, e.toString(), user);
@@ -39,8 +39,8 @@ public class PM_UserController {
 
     @GetMapping("/list")
     public Result managerLogin(PM_User user) {
-        if (user.getName() != null && !"".equals(user.getName())) {
-            List<PM_User> users = userRepository.findAllByNameContaining(user.getName());
+        if (user.getUsername() != null && !"".equals(user.getUsername())) {
+            List<PM_User> users = userRepository.findAllByUsernameContaining(user.getUsername());
             return new Result(SUCCESS_CODE, "", users);
         } else {
             List<PM_User> users = userRepository.findAll();
@@ -52,7 +52,7 @@ public class PM_UserController {
     @PostMapping("/add")
     public Result add(@RequestBody PM_User user) {
         try {
-            PM_User user1 = userRepository.findByName(user.getName());
+            PM_User user1 = userRepository.findByUsername(user.getUsername());
             if (user1 != null) {
                 return new Result(NAME_REPEAT, "名称重复");
             }
