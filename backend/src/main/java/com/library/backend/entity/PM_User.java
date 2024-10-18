@@ -17,5 +17,5 @@ public class PM_User {
     private String email;
     private String phone;
     private String address;
-    private int role;
+    private boolean role;
 }
