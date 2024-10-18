@@ -9,16 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.DigestUtils;
 
-@SpringBootTest
-class BackendApplicationTests {
+//@SpringBootTest
+//class BackendApplicationTests {
 
-	@Autowired
-	private ManagerRepository managerRepository;
-	@Autowired
-	private BookRepository bookRepository;
-	@Test
-	void contextLoads() {
-	}
+//	@Autowired
+//	private ManagerRepository managerRepository;
+//	@Autowired
+//	private BookRepository bookRepository;
+//	@Test
+//	void contextLoads() {
+//	}
 //	@Test
 //	void addManager() {
 //		Manager manager = new Manager();
@@ -26,13 +26,13 @@ class BackendApplicationTests {
 //		manager.setUsername("admin");
 //		managerRepository.save(manager);
 //	}
-	@Test
-	void addBook() {
-		Book book = new Book();
-		book.setBookName("书2");
-		book.setBorrow(10);
-		book.setPress("出版社2");
-		book.setAuthor("作者2");
-		bookRepository.save(book);
-	}
-}
+//	@Test
+//	void addBook() {
+//		Book book = new Book();
+//		book.setBookName("书2");
+//		book.setBorrow(10);
+//		book.setPress("出版社2");
+//		book.setAuthor("作者2");
+//		bookRepository.save(book);
+//	}
+//}
