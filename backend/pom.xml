@@ -61,6 +61,14 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+<!--	添加JWT依赖	-->
+	<dependency>
+		<groupId>io.jsonwebtoken</groupId>
+		<artifactId>jjwt</artifactId>
+		<version>0.9.1</version> <!-- 或最新版本 -->
+	</dependency>
+
 	</dependencies>
 
 	<build>
