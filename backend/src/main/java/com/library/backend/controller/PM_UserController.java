@@ -23,6 +23,8 @@ import static com.library.backend.utils.Constant.*;
 @RequestMapping("/api")
 public class PM_UserController {
 
+    static PM_User loginUsr;
+
     @Autowired
     private PM_UserRepository userRepository;
 
@@ -45,6 +47,7 @@ public class PM_UserController {
             String jwtToken = jwtUtil.generateToken(user.getUsername());
             response.put("token", jwtToken);
             response.put("user", userRepository.findByUsername(user.getUsername()));
+            loginUsr = userRepository.findByUsername(user.getUsername());
             // 返回一个 ResponseEntity 对象，包含响应体和状态码
             return new ResponseEntity<>(response, HttpStatus.OK); // 200 状态码
         } catch (Exception e) {
@@ -98,6 +101,36 @@ public class PM_UserController {
             return new Result(SUCCESS_CODE, "删除成功", user);
         } catch (Exception e) {
             return new Result(FAILE_CODE, e.toString(), user);
+        }
+    }
+
+    @GetMapping("/usr")
+    public ResponseEntity<Object> getUsrInfo() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            response.put("id", loginUsr.getId());
+            response.put("username", loginUsr.getUsername());
+            response.put("phone", loginUsr.getPhone());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.clear();
+            response.put("message", "Unauthorized");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PatchMapping ("/usr/username")
+    public ResponseEntity<Object> updateNewUserName(PM_User usr) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            userRepository.updateUsernameById(loginUsr.getId(), usr.getUsername());
+            response.put("username", usr.getUsername());
+            response.put("message", "Username updated successfully");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.clear();
+            response.put("message", "Invalid format");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 }
