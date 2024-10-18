@@ -5,10 +5,14 @@ import com.library.backend.model.Result;
 import com.library.backend.repository.PM_UserRepository;
 import com.library.backend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.library.backend.utils.Constant.*;
 
@@ -23,17 +27,21 @@ public class PM_UserController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public Result login(@RequestBody PM_User user) {
+    public ResponseEntity<Object> login(@RequestBody PM_User user) {
         try {
-            int cnt = userRepository.countByUsernameAndPassword(user.getUsername(),user.getPassword());
+            Map<String, Object> response = new HashMap<>();
+            int cnt = userRepository.countByUsernameAndPassword(user.getUsername(), user.getPassword());
             if (cnt == 0) {
-                return new Result(FAILE_CODE, "用户名或密码错误");
+                response.put("message", "用户名或密码错误");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
             }
             String jwtToken = jwtUtil.generateToken(user.getUsername());
-            return new Result(SUCCESS_CODE, "验证成功", userRepository.findByUsername(user.getUsername()));
+            response.put("token", jwtToken);
+            response.put("user", userRepository.findByUsername(user.getUsername()));
+            return new ResponseEntity<>(response, HttpStatus.OK); // 200 状态码
         } catch (Exception e) {
 
-            return new Result(FAILE_CODE, e.toString(), user);
+            return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500 状态码
         }
     }
 
@@ -64,6 +72,7 @@ public class PM_UserController {
             return new Result(FAILE_CODE, e.toString(), user);
         }
     }
+
     @PostMapping("/update")
     public Result update(@RequestBody PM_User user) {
         try {
