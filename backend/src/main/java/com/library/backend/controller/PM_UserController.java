@@ -1,10 +1,8 @@
 package com.library.backend.controller;
 
 import com.library.backend.entity.PM_User;
-import com.library.backend.entity.User;
 import com.library.backend.model.Result;
 import com.library.backend.repository.PM_UserRepository;
-import com.library.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +21,7 @@ public class PM_UserController {
     @GetMapping("/list")
     public Result managerLogin(PM_User user) {
         if (user.getName() != null && !"".equals(user.getName())) {
-            List<PM_User> users = userRepository.findAllByUsernameContaining(user.getName());
+            List<PM_User> users = userRepository.findAllByNameContaining(user.getName());
             return new Result(SUCCESS_CODE, "", users);
         } else {
             List<PM_User> users = userRepository.findAll();
@@ -35,7 +33,7 @@ public class PM_UserController {
     @PostMapping("/add")
     public Result add(@RequestBody PM_User user) {
         try {
-            PM_User user1 = userRepository.findByUsername(user.getName());
+            PM_User user1 = userRepository.findByName(user.getName());
             if (user1 != null) {
                 return new Result(NAME_REPEAT, "名称重复");
             }
