@@ -10,9 +10,10 @@ import java.util.List;
 
 public interface PM_UserRepository extends JpaRepository<PM_User, Long> {
 
-    int countByNameAndPassword(String name, String password);
+    int countByIdAndPassword(int id, String password);
 
     PM_User findByName(String name);
+    PM_User findById(int id);
 
     @Transactional
     @Modifying

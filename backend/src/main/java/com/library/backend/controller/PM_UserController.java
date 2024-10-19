@@ -37,17 +37,18 @@ public class PM_UserController {
         try {
             // Map存储返回信息的键值对，Spring框架会自动转换为JSON格式返回给前端
             Map<String, Object> response = new HashMap<>();
-            int cnt = userRepository.countByNameAndPassword(user.getName(), user.getPassword());
+            int cnt = userRepository.countByIdAndPassword(user.getId(), user.getPassword());
             if (cnt == 0) {
-                response.put("message", "用户名或密码错误");
+                response.put("message", "Invalid ID or password");
                 // 返回一个 ResponseEntity 对象，包含响应体和状态码
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
             }
+            PM_User returnUser = userRepository.findById(user.getId());
             // 根据用户名生成 JWT Token， 只在登录成功时生成，后续操作由JWT过滤器自动校验前端发来的Token
-            String jwtToken = jwtUtil.generateToken(user.getName());
+            String jwtToken = jwtUtil.generateToken(returnUser.getName());
             response.put("token", jwtToken);
-            response.put("user", userRepository.findByName(user.getName()));
-            loginUsr = userRepository.findByName(user.getName());
+            returnUser.setPassword("");
+            response.put("user", returnUser);
             // 返回一个 ResponseEntity 对象，包含响应体和状态码
             return new ResponseEntity<>(response, HttpStatus.OK); // 200 状态码
         } catch (Exception e) {
