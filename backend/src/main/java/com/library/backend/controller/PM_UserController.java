@@ -37,17 +37,18 @@ public class PM_UserController {
         try {
             // Map存储返回信息的键值对，Spring框架会自动转换为JSON格式返回给前端
             Map<String, Object> response = new HashMap<>();
-            int cnt = userRepository.countByUsernameAndPassword(user.getUsername(), user.getPassword());
+            int cnt = userRepository.countByIdAndPassword(user.getId(), user.getPassword());
             if (cnt == 0) {
-                response.put("message", "用户名或密码错误");
+                response.put("message", "Invalid ID or password");
                 // 返回一个 ResponseEntity 对象，包含响应体和状态码
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
             }
+            PM_User returnUser = userRepository.findById(user.getId());
             // 根据用户名生成 JWT Token， 只在登录成功时生成，后续操作由JWT过滤器自动校验前端发来的Token
-            String jwtToken = jwtUtil.generateToken(user.getUsername());
+            String jwtToken = jwtUtil.generateToken(String.valueOf(returnUser.getId()));
             response.put("token", jwtToken);
-            response.put("user", userRepository.findByUsername(user.getUsername()));
-            loginUsr = userRepository.findByUsername(user.getUsername());
+            returnUser.setPassword("");
+            response.put("user", returnUser);
             // 返回一个 ResponseEntity 对象，包含响应体和状态码
             return new ResponseEntity<>(response, HttpStatus.OK); // 200 状态码
         } catch (Exception e) {
@@ -56,10 +57,43 @@ public class PM_UserController {
         }
     }
 
+    @PostMapping("/register")
+    @ApiOperation(value = "用户注册")
+    public ResponseEntity<Object> register(@RequestBody Map<String, Object> requestBody) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Object idObject = requestBody.get("id");
+            // 检查ID是否为整数
+            int id = Integer.parseInt((String) idObject);
+            // 检查是否已经存在相同的用户
+            if (userRepository.findById(id) != null) {
+                response.put("message", "User already exists");
+                return new ResponseEntity<>(response, HttpStatus.CONFLICT); // 409 状态码
+            }
+            PM_User user = new PM_User();
+            user.setId(id);
+            user.setPassword((String) requestBody.get("password"));
+            PM_User newUser = userRepository.save(user);
+            newUser.setPassword("***加密处理***");
+            response.put("user", newUser);
+            response.put("message", "User created successfully");
+            String jwtToken = jwtUtil.generateToken(String.valueOf(id));
+            response.put("token", jwtToken);
+            return new ResponseEntity<>(response, HttpStatus.CREATED); // 201 状态码
+        } catch (NumberFormatException e) {
+
+            response.put("message", "ID is not valid");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); // 400 状态码
+        } catch (Exception e) {
+
+            return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500 状态码
+        }
+    }
+
     @GetMapping("/list")
     public Result managerLogin(PM_User user) {
-        if (user.getUsername() != null && !"".equals(user.getUsername())) {
-            List<PM_User> users = userRepository.findAllByUsernameContaining(user.getUsername());
+        if (user.getName() != null && !"".equals(user.getName())) {
+            List<PM_User> users = userRepository.findAllByNameContaining(user.getName());
             return new Result(SUCCESS_CODE, "", users);
         } else {
             List<PM_User> users = userRepository.findAll();
@@ -71,7 +105,7 @@ public class PM_UserController {
     @PostMapping("/add")
     public Result add(@RequestBody PM_User user) {
         try {
-            PM_User user1 = userRepository.findByUsername(user.getUsername());
+            PM_User user1 = userRepository.findByName(user.getName());
             if (user1 != null) {
                 return new Result(NAME_REPEAT, "名称重复");
             }
@@ -109,7 +143,7 @@ public class PM_UserController {
         Map<String, Object> response = new HashMap<>();
         try {
             response.put("id", loginUsr.getId());
-            response.put("username", loginUsr.getUsername());
+            response.put("username", loginUsr.getName());
             response.put("phone", loginUsr.getPhone());
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
@@ -119,12 +153,12 @@ public class PM_UserController {
         }
     }
 
-    @PatchMapping ("/usr/username")
+    @PatchMapping("/usr/username")
     public ResponseEntity<Object> updateNewUserName(PM_User usr) {
         Map<String, Object> response = new HashMap<>();
         try {
-            userRepository.updateUsernameById(loginUsr.getId(), usr.getUsername());
-            response.put("username", usr.getUsername());
+            userRepository.updateUsernameById(loginUsr.getId(), usr.getName());
+            response.put("username", usr.getName());
             response.put("message", "Username updated successfully");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {

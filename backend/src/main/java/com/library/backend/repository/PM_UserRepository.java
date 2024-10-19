@@ -10,17 +10,18 @@ import java.util.List;
 
 public interface PM_UserRepository extends JpaRepository<PM_User, Long> {
 
-    int countByUsernameAndPassword(String name, String password);
+    int countByIdAndPassword(int id, String password);
 
-    PM_User findByUsername(String name);
+    PM_User findByName(String name);
+    PM_User findById(int id);
 
     @Transactional
     @Modifying
     void deleteById(int id);
     @Transactional
     @Modifying
-    @Query(value = "update PM_User u set u.username = ?2 where u.id = ?1")
+    @Query(value = "update PM_User u set u.name = ?2 where u.id = ?1")
     void updateUsernameById(int id, String username);
 
-    List<PM_User> findAllByUsernameContaining(String name);
+    List<PM_User> findAllByNameContaining(String name);
 }
