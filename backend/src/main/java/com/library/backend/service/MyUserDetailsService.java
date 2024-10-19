@@ -18,13 +18,13 @@ public class MyUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        PM_User user = userRepository.findByUsername(username);
+        PM_User user = userRepository.findByName(username);
         if (user == null) {
             throw new UsernameNotFoundException("用户名 " + username + " 未找到");
         }
         // 返回一个 Spring Security 所需的 UserDetails 对象
         return new org.springframework.security.core.userdetails.User(
-            user.getUsername(),
+            user.getName(),
             user.getPassword(),
             new ArrayList<>()  // 可根据实际情况填充权限
         );

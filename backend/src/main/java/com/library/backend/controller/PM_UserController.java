@@ -37,17 +37,17 @@ public class PM_UserController {
         try {
             // Map存储返回信息的键值对，Spring框架会自动转换为JSON格式返回给前端
             Map<String, Object> response = new HashMap<>();
-            int cnt = userRepository.countByUsernameAndPassword(user.getUsername(), user.getPassword());
+            int cnt = userRepository.countByNameAndPassword(user.getName(), user.getPassword());
             if (cnt == 0) {
                 response.put("message", "用户名或密码错误");
                 // 返回一个 ResponseEntity 对象，包含响应体和状态码
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
             }
             // 根据用户名生成 JWT Token， 只在登录成功时生成，后续操作由JWT过滤器自动校验前端发来的Token
-            String jwtToken = jwtUtil.generateToken(user.getUsername());
+            String jwtToken = jwtUtil.generateToken(user.getName());
             response.put("token", jwtToken);
-            response.put("user", userRepository.findByUsername(user.getUsername()));
-            loginUsr = userRepository.findByUsername(user.getUsername());
+            response.put("user", userRepository.findByName(user.getName()));
+            loginUsr = userRepository.findByName(user.getName());
             // 返回一个 ResponseEntity 对象，包含响应体和状态码
             return new ResponseEntity<>(response, HttpStatus.OK); // 200 状态码
         } catch (Exception e) {
@@ -58,8 +58,8 @@ public class PM_UserController {
 
     @GetMapping("/list")
     public Result managerLogin(PM_User user) {
-        if (user.getUsername() != null && !"".equals(user.getUsername())) {
-            List<PM_User> users = userRepository.findAllByUsernameContaining(user.getUsername());
+        if (user.getName() != null && !"".equals(user.getName())) {
+            List<PM_User> users = userRepository.findAllByNameContaining(user.getName());
             return new Result(SUCCESS_CODE, "", users);
         } else {
             List<PM_User> users = userRepository.findAll();
@@ -71,7 +71,7 @@ public class PM_UserController {
     @PostMapping("/add")
     public Result add(@RequestBody PM_User user) {
         try {
-            PM_User user1 = userRepository.findByUsername(user.getUsername());
+            PM_User user1 = userRepository.findByName(user.getName());
             if (user1 != null) {
                 return new Result(NAME_REPEAT, "名称重复");
             }
@@ -109,7 +109,7 @@ public class PM_UserController {
         Map<String, Object> response = new HashMap<>();
         try {
             response.put("id", loginUsr.getId());
-            response.put("username", loginUsr.getUsername());
+            response.put("username", loginUsr.getName());
             response.put("phone", loginUsr.getPhone());
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
@@ -123,8 +123,8 @@ public class PM_UserController {
     public ResponseEntity<Object> updateNewUserName(PM_User usr) {
         Map<String, Object> response = new HashMap<>();
         try {
-            userRepository.updateUsernameById(loginUsr.getId(), usr.getUsername());
-            response.put("username", usr.getUsername());
+            userRepository.updateUsernameById(loginUsr.getId(), usr.getName());
+            response.put("username", usr.getName());
             response.put("message", "Username updated successfully");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
