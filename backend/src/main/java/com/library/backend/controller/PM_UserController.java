@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -174,5 +175,62 @@ public class PM_UserController {
             return new Result(FAILE_CODE, e.toString(), user);
         }
     }
+
+    @PatchMapping("/admin/user/password")
+    @ApiOperation(value = "管理员重置密码")
+    public ResponseEntity<Object> resetUserPassword(@RequestBody Map<String, Object> requestBody) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            int id = (int) requestBody.get("id");
+            // 404
+            if (userRepository.findById(id) == null) {
+                response.put("message", "User not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+            String password = (String) requestBody.get("newPassword");
+            userRepository.resetPasswordById(id, password);
+            // 200
+            response.put("message", "Password updated successfully");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (HttpClientErrorException.BadRequest e) {
+            // 400
+            response.put("message", "Invalid format");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        } catch (HttpClientErrorException.Unauthorized e) {
+            // 401
+            response.put("message", "Unauthorized");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        } catch (HttpClientErrorException.Forbidden e) {
+            // 403
+            response.put("message", "Access denied");
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+    }
+
+    @DeleteMapping("/admin/user/:{id}")
+    @ApiOperation(value = "管理员删除用户")
+    public ResponseEntity<Object> deleteUserById(@PathVariable int id) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // 404
+            if (userRepository.findById(id) == null) {
+                response.put("message", "User not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+            userRepository.deleteById(id);
+            // 204
+            response.put("message", "User deleted successfully");
+            return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
+        } catch (HttpClientErrorException.Unauthorized e) {
+            // 401
+            response.put("message", "Unauthorized");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        } catch (HttpClientErrorException.Forbidden e) {
+            // 403
+            response.put("message", "Access denied");
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+    }
+
 
 }

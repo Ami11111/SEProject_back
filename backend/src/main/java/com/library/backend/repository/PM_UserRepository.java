@@ -29,4 +29,9 @@ public interface PM_UserRepository extends JpaRepository<PM_User, Long> {
                             @Param("address") String address);
 
     List<PM_User> findAllByNameContaining(String name);
+
+    @Transactional
+    @Modifying
+    @Query(value = "update PM_User u set u.password =:password where u.id =:id")
+    void resetPasswordById(@Param("id") int id, @Param("password") String password);
 }
