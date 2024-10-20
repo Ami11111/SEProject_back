@@ -168,14 +168,10 @@ public class PM_UserController {
             response.put("user", user);
             response.put("message", "Updated successfully");
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             response.clear();
             response.put("message", "Invalid format");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); // 400 状态码
-        } catch (Exception e) {
-            response.clear();
-            response.put("message", "Unauthorized");
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
 
