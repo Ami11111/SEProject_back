@@ -92,12 +92,12 @@ public class PM_UserController {
 
     @GetMapping("/user")
     @ApiOperation(value = "获取用户信息")
-    public ResponseEntity<Object> getUsrInfo() {
+    public ResponseEntity<Object> getUserInfo() {
         Map<String, Object> response = new HashMap<>();
         try {
             PM_User returnUser = userRepository.findById(loginUserId);
             returnUser.setPassword("");
-            response.put("usr", returnUser);
+            response.put("user", returnUser);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.clear();
