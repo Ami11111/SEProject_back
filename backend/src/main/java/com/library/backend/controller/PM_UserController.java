@@ -91,7 +91,7 @@ public class PM_UserController {
         }
     }
 
-    @GetMapping("/usr")
+    @GetMapping("/user")
     @ApiOperation(value = "获取用户信息")
     public ResponseEntity<Object> getUsrInfo() {
         Map<String, Object> response = new HashMap<>();
@@ -107,7 +107,7 @@ public class PM_UserController {
         }
     }
 
-    @PatchMapping("/usr")
+    @PatchMapping("/user")
     @ApiOperation(value = "修改个人信息")
     public ResponseEntity<Object> updateUserInfo(PM_User usr) {
         Map<String, Object> response = new HashMap<>();
