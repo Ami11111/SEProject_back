@@ -115,8 +115,8 @@ public class PM_UserController {
             PM_User user = requestBody.get("user");
             // 检查是否存在用户
             if (userRepository.findById(user.getId()) == null) {
-                response.put("message", "Invalid format"); //
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); //
+                response.put("message", "User not found");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
             userRepository.updateUserInfoById(user.getId(), user.getName(), user.getPhone(), user.getEmail(), user.getAddress());
             response.put("user", user);
