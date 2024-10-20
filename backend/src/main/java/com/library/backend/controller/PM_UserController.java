@@ -1,7 +1,6 @@
 package com.library.backend.controller;
 
 import com.library.backend.entity.PM_User;
-import com.library.backend.entity.PM_User_Wrapper;
 import com.library.backend.model.Result;
 import com.library.backend.repository.PM_UserRepository;
 import com.library.backend.utils.JwtUtil;
@@ -120,7 +119,6 @@ public class PM_UserController {
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); //
             }
             userRepository.updateUserInfoById(user.getId(), user.getName(), user.getPhone(), user.getEmail(), user.getAddress());
-            //userRepository.save(user);
             response.put("user", user);
             response.put("message", "Updated successfully");
             return new ResponseEntity<>(response, HttpStatus.OK);
