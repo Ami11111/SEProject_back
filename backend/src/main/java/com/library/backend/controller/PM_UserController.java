@@ -1,6 +1,7 @@
 package com.library.backend.controller;
 
 import com.library.backend.entity.PM_User;
+import com.library.backend.entity.PM_User_Wrapper;
 import com.library.backend.model.Result;
 import com.library.backend.repository.PM_UserRepository;
 import com.library.backend.utils.JwtUtil;
@@ -102,27 +103,29 @@ public class PM_UserController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.clear();
-            response.put("message", "");
+            response.put("message", "Unauthorized");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
 
     @PatchMapping("/user")
     @ApiOperation(value = "修改个人信息")
-    public ResponseEntity<Object> updateUserInfo(PM_User usr) {
+    public ResponseEntity<Object> updateUserInfo(@RequestBody Map<String, PM_User> requestBody) {
         Map<String, Object> response = new HashMap<>();
         try {
+            PM_User user = requestBody.get("user");
             // 检查是否存在用户
-            if (userRepository.findById(usr.getId()) == null) {
+            if (userRepository.findById(user.getId()) == null) {
                 response.put("message", "Invalid format"); //
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); //
             }
-            //userRepository.updateUserInfoById(usr.getId(), usr.getName(), usr.getPhone(), usr.getEmail(), usr.getAddress());
-            userRepository.save(usr);
-            response.put("user", usr);
+            userRepository.updateUserInfoById(user.getId(), user.getName(), user.getPhone(), user.getEmail(), user.getAddress());
+            //userRepository.save(user);
+            response.put("user", user);
             response.put("message", "Updated successfully");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NumberFormatException e) {
+            response.clear();
             response.put("message", "Invalid format");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); // 400 状态码
         } catch (Exception e) {
