@@ -113,12 +113,7 @@ public class PM_UserController {
         Map<String, Object> response = new HashMap<>();
         try {
             PM_User user = requestBody.get("user");
-            // 检查是否存在用户
-            if (userRepository.findById(user.getId()) == null) {
-                response.put("message", "User not found");
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            }
-            userRepository.updateUserInfoById(user.getId(), user.getName(), user.getPhone(), user.getEmail(), user.getAddress());
+            userRepository.updateUserInfoById(loginUserId, user.getName(), user.getPhone(), user.getEmail(), user.getAddress());
             response.put("user", user);
             response.put("message", "Updated successfully");
             return new ResponseEntity<>(response, HttpStatus.OK);
