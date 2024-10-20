@@ -23,7 +23,7 @@ import static com.library.backend.utils.Constant.*;
 @RequestMapping("/api")
 public class PM_UserController {
 
-    static int loginUserId;
+    public static int loginUserId;
 
     @Autowired
     private PM_UserRepository userRepository;
@@ -44,7 +44,6 @@ public class PM_UserController {
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
             }
             PM_User returnUser = userRepository.findById(user.getId());
-            loginUserId = returnUser.getId();
             // 根据用户名生成 JWT Token， 只在登录成功时生成，后续操作由JWT过滤器自动校验前端发来的Token
             String jwtToken = jwtUtil.generateToken(String.valueOf(returnUser.getId()));
             response.put("token", jwtToken);
