@@ -23,7 +23,7 @@ import static com.library.backend.utils.Constant.*;
 @RequestMapping("/api")
 public class PM_UserController {
 
-    static PM_User loginUsr;
+    static int loginUserId;
 
     @Autowired
     private PM_UserRepository userRepository;
@@ -44,6 +44,7 @@ public class PM_UserController {
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
             }
             PM_User returnUser = userRepository.findById(user.getId());
+            loginUserId = returnUser.getId();
             // 根据用户名生成 JWT Token， 只在登录成功时生成，后续操作由JWT过滤器自动校验前端发来的Token
             String jwtToken = jwtUtil.generateToken(String.valueOf(returnUser.getId()));
             response.put("token", jwtToken);
@@ -87,6 +88,47 @@ public class PM_UserController {
         } catch (Exception e) {
 
             return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500 状态码
+        }
+    }
+
+    @GetMapping("/usr")
+    @ApiOperation(value = "获取用户信息")
+    public ResponseEntity<Object> getUsrInfo() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            PM_User returnUser = userRepository.findById(loginUserId);
+            returnUser.setPassword("");
+            response.put("usr", returnUser);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.clear();
+            response.put("message", "");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PatchMapping("/usr")
+    @ApiOperation(value = "修改个人信息")
+    public ResponseEntity<Object> updateUserInfo(PM_User usr) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // 检查是否存在用户
+            if (userRepository.findById(usr.getId()) == null) {
+                response.put("message", "Invalid format"); //
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); //
+            }
+            //userRepository.updateUserInfoById(usr.getId(), usr.getName(), usr.getPhone(), usr.getEmail(), usr.getAddress());
+            userRepository.save(usr);
+            response.put("user", usr);
+            response.put("message", "Updated successfully");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (NumberFormatException e) {
+            response.put("message", "Invalid format");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); // 400 状态码
+        } catch (Exception e) {
+            response.clear();
+            response.put("message", "Unauthorized");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -138,33 +180,4 @@ public class PM_UserController {
         }
     }
 
-    @GetMapping("/usr")
-    public ResponseEntity<Object> getUsrInfo() {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            response.put("id", loginUsr.getId());
-            response.put("username", loginUsr.getName());
-            response.put("phone", loginUsr.getPhone());
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e) {
-            response.clear();
-            response.put("message", "Unauthorized");
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-        }
-    }
-
-    @PatchMapping("/usr/username")
-    public ResponseEntity<Object> updateNewUserName(PM_User usr) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            userRepository.updateUsernameById(loginUsr.getId(), usr.getName());
-            response.put("username", usr.getName());
-            response.put("message", "Username updated successfully");
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e) {
-            response.clear();
-            response.put("message", "Invalid format");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-    }
 }

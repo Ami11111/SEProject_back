@@ -4,6 +4,7 @@ import com.library.backend.entity.PM_User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -20,8 +21,12 @@ public interface PM_UserRepository extends JpaRepository<PM_User, Long> {
     void deleteById(int id);
     @Transactional
     @Modifying
-    @Query(value = "update PM_User u set u.name = ?2 where u.id = ?1")
-    void updateUsernameById(int id, String username);
+    @Query(value = "update PM_User u set u.name = :name, u.phone = :phone, u.email = :email, u.address = :address where u.id = :id")
+    void updateUserInfoById(@Param("id") int id,
+                            @Param("name") String name,
+                            @Param("phone") String phone,
+                            @Param("email") String email,
+                            @Param("address") String address);
 
     List<PM_User> findAllByNameContaining(String name);
 }
