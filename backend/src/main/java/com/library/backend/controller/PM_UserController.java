@@ -24,8 +24,6 @@ import static com.library.backend.utils.Constant.*;
 @RequestMapping("/api")
 public class PM_UserController {
 
-    public static int loginUserId;
-
     @Autowired
     private PM_UserRepository userRepository;
 
@@ -132,10 +130,17 @@ public class PM_UserController {
 
     @GetMapping("/user")
     @ApiOperation(value = "获取用户信息")
-    public ResponseEntity<Object> getUserInfo() {
+    public ResponseEntity<Object> getUserInfo(@RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
         try {
-            PM_User returnUser = userRepository.findById(loginUserId);
+            // 去掉 Bearer 前缀
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            // 从Token中解析用户id
+            String id = jwtUtil.extractUsername(token);
+            // 根据id查询数据库中的用户
+            PM_User returnUser = userRepository.findById(Integer.parseInt(id));
             returnUser.setPassword("");
             response.put("user", returnUser);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -148,11 +153,18 @@ public class PM_UserController {
 
     @PatchMapping("/user")
     @ApiOperation(value = "修改个人信息")
-    public ResponseEntity<Object> updateUserInfo(@RequestBody Map<String, PM_User> requestBody) {
+    public ResponseEntity<Object> updateUserInfo(@RequestBody Map<String, PM_User> requestBody, @RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
         try {
             PM_User user = requestBody.get("user");
-            userRepository.updateUserInfoById(loginUserId, user.getName(), user.getPhone(), user.getEmail(), user.getAddress());
+            // 去掉 Bearer 前缀
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            // 从Token中解析用户id
+            String id = jwtUtil.extractUsername(token);
+            // 根据id更新数据库中的用户
+            userRepository.updateUserInfoById(Integer.parseInt(id), user.getName(), user.getPhone(), user.getEmail(), user.getAddress());
             response.put("user", user);
             response.put("message", "Updated successfully");
             return new ResponseEntity<>(response, HttpStatus.OK);
