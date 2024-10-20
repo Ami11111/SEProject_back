@@ -91,6 +91,45 @@ public class PM_UserController {
         }
     }
 
+    @PostMapping("/admin/user")
+    @ApiOperation(value = "管理员添加用户")
+    public ResponseEntity<Object> adminAddUser(@RequestBody PM_User user, @RequestHeader("Authorization") String token) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // 检验操作者是否为管理员
+            // 去掉 Bearer 前缀
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            // 从Token中解析用户id
+            String id = jwtUtil.extractUsername(token);
+            // 根据id查询数据库中的用户
+            PM_User admin = userRepository.findById(Integer.parseInt(String.valueOf(id)));
+            if (!admin.isRole()) {
+                response.put("message", "Access denied");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN); // 403 状态码
+            }
+
+            // 检查是否已经存在相同的用户
+            if (userRepository.findById(user.getId()) != null) {
+                response.put("message", "User already exists");
+                return new ResponseEntity<>(response, HttpStatus.CONFLICT); // 409 状态码
+            }
+            // 如果密码为空，则设置默认密码
+            if (user.getPassword() == null || user.getPassword().isEmpty()) {
+                user.setPassword("123456");
+            }
+            PM_User newUser = userRepository.save(user);
+            newUser.setPassword("***加密处理***");
+            response.put("user", newUser);
+            response.put("message", "User created successfully");
+            return new ResponseEntity<>(response, HttpStatus.CREATED); // 201 状态码
+        } catch (Exception e) {
+
+            return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500 状态码
+        }
+    }
+
     @GetMapping("/user")
     @ApiOperation(value = "获取用户信息")
     public ResponseEntity<Object> getUserInfo() {
