@@ -298,7 +298,7 @@ public class PM_UserController {
         }
     }
 
-    @DeleteMapping("/admin/user/:{userId}")
+    @DeleteMapping("/admin/user/{userId}")
     @ApiOperation(value = "管理员删除用户")
     public ResponseEntity<Object> deleteUserById(@PathVariable int userId, @RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
