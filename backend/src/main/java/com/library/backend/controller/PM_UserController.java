@@ -222,14 +222,10 @@ public class PM_UserController {
             List<PM_User> users = userRepository.findAllByRole(false);
 
             return new ResponseEntity<>(users, HttpStatus.OK);
-        } catch (HttpClientErrorException.BadRequest e) {
+        } catch (Exception e) {
             // 400
             response.put("message", "Invalid format");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        } catch (HttpClientErrorException.Unauthorized e) {
-            // 401
-            response.put("message", "Unauthorized");
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -258,14 +254,10 @@ public class PM_UserController {
             response.put("message", "User updated successfully");
             response.put("user", user);
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (HttpClientErrorException.BadRequest e) {
+        } catch (Exception e) {
             // 400
             response.put("message", "Invalid format");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        } catch (HttpClientErrorException.Unauthorized e) {
-            // 401
-            response.put("message", "Unauthorized");
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
 
