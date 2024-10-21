@@ -24,8 +24,6 @@ import static com.library.backend.utils.Constant.*;
 @RequestMapping("/api")
 public class PM_UserController {
 
-    public static int loginUserId;
-
     @Autowired
     private PM_UserRepository userRepository;
 
@@ -91,12 +89,58 @@ public class PM_UserController {
         }
     }
 
-    @GetMapping("/user")
-    @ApiOperation(value = "获取用户信息")
-    public ResponseEntity<Object> getUserInfo() {
+    @PostMapping("/admin/user")
+    @ApiOperation(value = "管理员添加用户")
+    public ResponseEntity<Object> adminAddUser(@RequestBody PM_User user, @RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
         try {
-            PM_User returnUser = userRepository.findById(loginUserId);
+            // 检验操作者是否为管理员
+            // 去掉 Bearer 前缀
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            // 从Token中解析用户id
+            String id = jwtUtil.extractUsername(token);
+            // 根据id查询数据库中的用户
+            PM_User admin = userRepository.findById(Integer.parseInt(String.valueOf(id)));
+            if (!admin.isRole()) {
+                response.put("message", "Access denied");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN); // 403 状态码
+            }
+
+            // 检查是否已经存在相同的用户
+            if (userRepository.findById(user.getId()) != null) {
+                response.put("message", "User already exists");
+                return new ResponseEntity<>(response, HttpStatus.CONFLICT); // 409 状态码
+            }
+            // 如果密码为空，则设置默认密码
+            if (user.getPassword() == null || user.getPassword().isEmpty()) {
+                user.setPassword("123456");
+            }
+            PM_User newUser = userRepository.save(user);
+            newUser.setPassword("***加密处理***");
+            response.put("user", newUser);
+            response.put("message", "User created successfully");
+            return new ResponseEntity<>(response, HttpStatus.CREATED); // 201 状态码
+        } catch (Exception e) {
+
+            return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500 状态码
+        }
+    }
+
+    @GetMapping("/user")
+    @ApiOperation(value = "获取用户信息")
+    public ResponseEntity<Object> getUserInfo(@RequestHeader("Authorization") String token) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // 去掉 Bearer 前缀
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            // 从Token中解析用户id
+            String id = jwtUtil.extractUsername(token);
+            // 根据id查询数据库中的用户
+            PM_User returnUser = userRepository.findById(Integer.parseInt(id));
             returnUser.setPassword("");
             response.put("user", returnUser);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -109,22 +153,25 @@ public class PM_UserController {
 
     @PatchMapping("/user")
     @ApiOperation(value = "修改个人信息")
-    public ResponseEntity<Object> updateUserInfo(@RequestBody Map<String, PM_User> requestBody) {
+    public ResponseEntity<Object> updateUserInfo(@RequestBody Map<String, PM_User> requestBody, @RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
         try {
             PM_User user = requestBody.get("user");
-            userRepository.updateUserInfoById(loginUserId, user.getName(), user.getPhone(), user.getEmail(), user.getAddress());
+            // 去掉 Bearer 前缀
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            // 从Token中解析用户id
+            String id = jwtUtil.extractUsername(token);
+            // 根据id更新数据库中的用户
+            userRepository.updateUserInfoById(Integer.parseInt(id), user.getName(), user.getPhone(), user.getEmail(), user.getAddress());
             response.put("user", user);
             response.put("message", "Updated successfully");
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             response.clear();
             response.put("message", "Invalid format");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); // 400 状态码
-        } catch (Exception e) {
-            response.clear();
-            response.put("message", "Unauthorized");
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
 

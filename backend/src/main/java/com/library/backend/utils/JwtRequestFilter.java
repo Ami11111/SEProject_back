@@ -37,7 +37,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
             userId = jwtUtil.extractUsername(jwt);
-            PM_UserController.loginUserId = Integer.parseInt(userId);
         }
 
         // 验证 JWT 并设置 Spring Security 上下文

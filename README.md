@@ -208,6 +208,16 @@ GET /getUserAgent
   </form>
   ```
 
+### 8.@RequestHeader
+
+从Header中解析出Token:
+
+```java
+public ResponseEntity<Object> adminAddUser(@RequestBody PM_User user, @RequestHeader("Authorization") String token)
+```
+
+可以通过@RequestHeader("Authorization") String token解析。
+
 ## 在Repository接口中定义SQL
 
 - 在 Spring MVC 中，`Repository` 接口的主要作用是提供与数据库交互的抽象层，简化对数据的持久化操作。它属于 Spring Data JPA 的一部分，帮助开发者减少繁琐的 SQL 查询语句编写，并通过面向对象的方式与数据库进行交互。
@@ -335,3 +345,17 @@ public ResponseEntity<Object> login(@RequestBody PM_User user) {
 ```
 
 在这个例子中，我们返回了一个`ResponseEntity`对象，并指定了不同的HTTP状态码，例如`HttpStatus.NOT_FOUND`（404）和`HttpStatus.OK`（200）。
+
+## Postman使用方法
+
+[接口调试神器：Postman 从入门到进阶教程（万字长文）！-腾讯云开发者社区-腾讯云](https://cloud.tencent.com/developer/article/2021399)
+
+Token的添加方法：
+
+在请求的Headers中添加如下键值对：
+
+```js
+Authorization: Bearer jwt
+```
+
+其中`Authorization`为键，`Bearer jwt`为值,jwt可以向`/api/login`或者`/api/register`发送请求获取。注意中间的空格不要遗漏。
