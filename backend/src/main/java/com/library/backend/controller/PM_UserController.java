@@ -225,11 +225,21 @@ public class PM_UserController {
 
     @PatchMapping("/admin/user/password")
     @ApiOperation(value = "管理员重置密码")
-    public ResponseEntity<Object> resetUserPassword(@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> resetUserPassword(@RequestBody Map<String, Object> requestBody, @RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
         try {
-            int id = (int) requestBody.get("id");
+            // 403 拒绝非管理员
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            int adminId = Integer.parseInt(jwtUtil.extractUsername(token));
+            PM_User admin = userRepository.findById(adminId);
+            if (!admin.isRole()) {
+                response.put("message", "Access denied");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
             // 404
+            int id = (int) requestBody.get("id");
             if (userRepository.findById(id) == null) {
                 response.put("message", "User not found");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -247,24 +257,30 @@ public class PM_UserController {
             // 401
             response.put("message", "Unauthorized");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-        } catch (HttpClientErrorException.Forbidden e) {
-            // 403
-            response.put("message", "Access denied");
-            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
     }
 
-    @DeleteMapping("/admin/user/:{id}")
+    @DeleteMapping("/admin/user/:{userId}")
     @ApiOperation(value = "管理员删除用户")
-    public ResponseEntity<Object> deleteUserById(@PathVariable int id) {
+    public ResponseEntity<Object> deleteUserById(@PathVariable int userId, @RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
         try {
+            // 403 拒绝非管理员
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            int adminId = Integer.parseInt(jwtUtil.extractUsername(token));
+            PM_User admin = userRepository.findById(adminId);
+            if (!admin.isRole()) {
+                response.put("message", "Access denied");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
             // 404
-            if (userRepository.findById(id) == null) {
+            if (userRepository.findById(userId) == null) {
                 response.put("message", "User not found");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
-            userRepository.deleteById(id);
+            userRepository.deleteById(userId);
             // 204
             response.put("message", "User deleted successfully");
             return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
@@ -272,10 +288,6 @@ public class PM_UserController {
             // 401
             response.put("message", "Unauthorized");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-        } catch (HttpClientErrorException.Forbidden e) {
-            // 403
-            response.put("message", "Access denied");
-            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
     }
 
