@@ -175,51 +175,89 @@ public class PM_UserController {
         }
     }
 
-    @GetMapping("/list")
-    public Result managerLogin(PM_User user) {
-        if (user.getName() != null && !"".equals(user.getName())) {
-            List<PM_User> users = userRepository.findAllByNameContaining(user.getName());
-            return new Result(SUCCESS_CODE, "", users);
-        } else {
-            List<PM_User> users = userRepository.findAll();
-            return new Result(SUCCESS_CODE, "", users);
-
-        }
-    }
-
-    @PostMapping("/add")
-    public Result add(@RequestBody PM_User user) {
+    @PatchMapping("/user/password")
+    @ApiOperation(value = "修改密码")
+    public ResponseEntity<Object> updateUserPassword(@RequestBody Map<String, String> requestBody, @RequestHeader("Authorization") String token) {
+        Map<String, Object> response = new HashMap<>();
         try {
-            PM_User user1 = userRepository.findByName(user.getName());
-            if (user1 != null) {
-                return new Result(NAME_REPEAT, "名称重复");
+            String oldPassword = requestBody.get("oldPassword");
+            String newPassword = requestBody.get("newPassword");
+            // 去掉 Bearer 前缀
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
             }
-            user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
-            userRepository.save(user);
-            return new Result(SUCCESS_CODE, "新增成功", user);
+            // 从Token中解析用户id
+            String id = jwtUtil.extractUsername(token);
+            PM_User returnUser = userRepository.findById(Integer.parseInt(id));
+            if(!returnUser.getPassword().equals(oldPassword)){
+                response.put("message", "Current password is incorrect");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            } else {
+                userRepository.resetPasswordById(Integer.parseInt(id), newPassword);
+            }
+            response.put("message", "Password updated successfully");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-
-            return new Result(FAILE_CODE, e.toString(), user);
+            response.clear();
+            response.put("message", "Invalid format");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); // 400 状态码
         }
     }
 
-    @PostMapping("/update")
-    public Result update(@RequestBody PM_User user) {
+    @GetMapping ("/admin")
+    @ApiOperation(value = "管理员获取用户列表")
+    public ResponseEntity<Object> getUserList(@RequestHeader("Authorization") String token) {
+        Map<String, Object> response = new HashMap<>();
         try {
-            userRepository.save(user);
-            return new Result(SUCCESS_CODE, "修改成功", user);
+            // 403 拒绝非管理员
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            int adminId = Integer.parseInt(jwtUtil.extractUsername(token));
+            PM_User admin = userRepository.findById(adminId);
+            if (!admin.isRole()) {
+                response.put("message", "Access denied");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+            List<PM_User> users = userRepository.findAllByRole(false);
+
+            return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e) {
-            return new Result(FAILE_CODE, e.toString(), user);
+            // 400
+            response.put("message", "Invalid format");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
-    @DeleteMapping("/delete")
-    public Result delete(@RequestBody PM_User user) {
+    @PatchMapping("/admin/user")
+    @ApiOperation(value = "管理员修改用户信息")
+    public ResponseEntity<Object> adminUpdateUserInfo(@RequestBody Map<String, PM_User> requestBody, @RequestHeader("Authorization") String token) {
+        Map<String, Object> response = new HashMap<>();
         try {
-            userRepository.deleteById(user.getId());
-            return new Result(SUCCESS_CODE, "删除成功", user);
+            // 403 拒绝非管理员
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            int adminId = Integer.parseInt(jwtUtil.extractUsername(token));
+            PM_User admin = userRepository.findById(adminId);
+            if (!admin.isRole()) {
+                response.put("message", "Access denied");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+            PM_User user = requestBody.get("user");
+            if (userRepository.findById(user.getId()) == null) {
+                response.put("message", "User not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+            // 根据id更新数据库中的用户
+            userRepository.updateUserInfoById(user.getId(), user.getName(), user.getPhone(), user.getEmail(), user.getAddress());
+            response.put("message", "User updated successfully");
+            response.put("user", user);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            return new Result(FAILE_CODE, e.toString(), user);
+            // 400
+            response.put("message", "Invalid format");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -260,7 +298,7 @@ public class PM_UserController {
         }
     }
 
-    @DeleteMapping("/admin/user/:{userId}")
+    @DeleteMapping("/admin/user/{userId}")
     @ApiOperation(value = "管理员删除用户")
     public ResponseEntity<Object> deleteUserById(@PathVariable int userId, @RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();

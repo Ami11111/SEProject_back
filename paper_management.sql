@@ -26,13 +26,13 @@ create table if not exists `user` (
 
 delete from `user`;
 insert into `user` values
-	(21808080, '8080', null, null, null, null, 1),
-    (21808081, '8081', 'chen', 'chen@fudan.edu.cn', '13998899889', '逸夫楼701-2', 0),
-    (21606060, '6060', 'xuan', 'xuan@m.fudan.edu.cn', null, null, 0),
-    (21606061, '6061', 'xiang', null, null, null, 0),
-    (21606062, '6062', 'feng', null, null, null, 0),
-    (21606063, '6063', 'liang', null, '18188866886', null, 0);
-  
+	(21808080, '8080', 'admin', 'admin@fudan.edu.cn', '13998899889', '逸夫楼701-1', 1),
+    (21808081, '8081', 'chen', 'chen@fudan.edu.cn', '15185199778', '逸夫楼701-2', 1),
+    (21606060, '6060', 'xuan', 'xuan@m.fudan.edu.cn', '13199420064', '上海市虹口区松花江路2500号', 0),
+    (21606061, '6061', 'xiang', 'xiang@m.fudan.edu.cn', '14819747682', '上海市虹口区松花江路2500号', 0),
+    (21606062, '6062', 'feng', 'feng@m.fudan.edu.cn', '17852587345', '上海市虹口区松花江路2500号', 0),
+    (21606063, '6063', 'liang', 'liang@m.fudan.edu.cn', '18188866886', '上海市虹口区松花江路2500号', 0);
+
 # table paper
 drop table if exists `paper`;
 create table if not exists `paper` (

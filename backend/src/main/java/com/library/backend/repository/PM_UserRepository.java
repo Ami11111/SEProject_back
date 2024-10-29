@@ -30,6 +30,8 @@ public interface PM_UserRepository extends JpaRepository<PM_User, Long> {
 
     List<PM_User> findAllByNameContaining(String name);
 
+    List<PM_User> findAllByRole(boolean role);
+
     @Transactional
     @Modifying
     @Query(value = "update PM_User u set u.password =:password where u.id =:id")
