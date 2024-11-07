@@ -128,9 +128,9 @@ public class PM_UserController {
         }
     }
 
-    @GetMapping("/user")
+    @GetMapping("/users/{id}")
     @ApiOperation(value = "获取用户信息")
-    public ResponseEntity<Object> getUserInfo(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<Object> getUserInfo(@PathVariable int id, @RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
         try {
             // 去掉 Bearer 前缀
@@ -138,9 +138,23 @@ public class PM_UserController {
                 token = token.substring(7);
             }
             // 从Token中解析用户id
-            String id = jwtUtil.extractUsername(token);
+            String user_id = jwtUtil.extractUsername(token);
+
+            int cnt = userRepository.countById(id);
+            if(cnt == 0){
+                response.put("message", "Not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+            PM_User returnUser = userRepository.findById(id);
+
             // 根据id查询数据库中的用户
-            PM_User returnUser = userRepository.findById(Integer.parseInt(id));
+            PM_User currentUser = userRepository.findById(Integer.parseInt(user_id));
+            if(id != Integer.parseInt(user_id) && !currentUser.isRole()) {
+                response.put("message", "Unauthorized");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            }
+
+            response.put("message", "Success");
             returnUser.setPassword("");
             response.put("user", returnUser);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -151,23 +165,46 @@ public class PM_UserController {
         }
     }
 
-    @PatchMapping("/user")
-    @ApiOperation(value = "修改个人信息")
-    public ResponseEntity<Object> updateUserInfo(@RequestBody Map<String, PM_User> requestBody, @RequestHeader("Authorization") String token) {
+    @PatchMapping("/users/{id}")
+    @ApiOperation(value = "更新用户信息")
+    public ResponseEntity<Object> updateUserInfo(@PathVariable int id, @RequestBody Map<String, String> requestBody, @RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
         try {
-            PM_User user = requestBody.get("user");
+            String name = requestBody.get("name");
+            String phone = requestBody.get("phone");
+            String email = requestBody.get("email");
+            String address = requestBody.get("address");
             // 去掉 Bearer 前缀
             if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
             // 从Token中解析用户id
-            String id = jwtUtil.extractUsername(token);
-            // 根据id更新数据库中的用户
-            userRepository.updateUserInfoById(Integer.parseInt(id), user.getName(), user.getPhone(), user.getEmail(), user.getAddress());
-            response.put("user", user);
-            response.put("message", "Updated successfully");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            String user_id = jwtUtil.extractUsername(token);
+
+            int cnt = userRepository.countById(id);
+            if(cnt == 0){
+                response.put("message", "Not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            // 查找用户
+            PM_User currentUser = userRepository.findById(Integer.parseInt(user_id));
+
+            if(currentUser.isRole() || id == Integer.parseInt(user_id)){
+                // 根据id更新数据库中的用户
+                userRepository.updateUserInfoById(id, name, phone, email, address);
+                PM_User updated_user = new PM_User();
+                updated_user.setId(id);
+                updated_user.setName(name);
+                updated_user.setEmail(email);
+                updated_user.setAddress(address);
+                response.put("user", updated_user);
+                response.put("message", "Updated successfully");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.put("message", "Unauthorized");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            }
         } catch (Exception e) {
             response.clear();
             response.put("message", "Invalid format");
@@ -175,9 +212,9 @@ public class PM_UserController {
         }
     }
 
-    @PatchMapping("/user/password")
+    @PatchMapping("/users/{id}/password")
     @ApiOperation(value = "修改密码")
-    public ResponseEntity<Object> updateUserPassword(@RequestBody Map<String, String> requestBody, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<Object> updateUserPassword(@PathVariable int id, @RequestBody Map<String, String> requestBody, @RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
         try {
             String oldPassword = requestBody.get("oldPassword");
@@ -187,16 +224,34 @@ public class PM_UserController {
                 token = token.substring(7);
             }
             // 从Token中解析用户id
-            String id = jwtUtil.extractUsername(token);
-            PM_User returnUser = userRepository.findById(Integer.parseInt(id));
-            if(!returnUser.getPassword().equals(oldPassword)){
-                response.put("message", "Current password is incorrect");
-                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-            } else {
-                userRepository.resetPasswordById(Integer.parseInt(id), newPassword);
+            String user_id = jwtUtil.extractUsername(token);
+
+            int cnt = userRepository.countById(id);
+            if(cnt == 0){
+                response.put("message", "Not found");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
-            response.put("message", "Password updated successfully");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            PM_User returnUser = userRepository.findById(id);
+
+            PM_User currentUser = userRepository.findById(Integer.parseInt(user_id));
+
+            if (currentUser.isRole()) {
+                userRepository.resetPasswordById(id, newPassword);
+                response.put("message", "Password updated successfully");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else if(id == Integer.parseInt(user_id)){
+                if(!returnUser.getPassword().equals(oldPassword)){
+                    response.put("message", "Current password is incorrect");
+                    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+                } else {
+                    userRepository.resetPasswordById(id, newPassword);
+                }
+                response.put("message", "Password updated successfully");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.put("message", "Unauthorized");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            }
         } catch (Exception e) {
             response.clear();
             response.put("message", "Invalid format");
@@ -204,8 +259,8 @@ public class PM_UserController {
         }
     }
 
-    @GetMapping ("/admin")
-    @ApiOperation(value = "管理员获取用户列表")
+    @GetMapping ("/users")
+    @ApiOperation(value = "获取全部用户")
     public ResponseEntity<Object> getUserList(@RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -216,12 +271,13 @@ public class PM_UserController {
             int adminId = Integer.parseInt(jwtUtil.extractUsername(token));
             PM_User admin = userRepository.findById(adminId);
             if (!admin.isRole()) {
-                response.put("message", "Access denied");
-                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+                response.put("message", "Unauthorized");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
             List<PM_User> users = userRepository.findAllByRole(false);
-
-            return new ResponseEntity<>(users, HttpStatus.OK);
+            response.put("message", "Success");
+            response.put("users", users);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             // 400
             response.put("message", "Invalid format");
