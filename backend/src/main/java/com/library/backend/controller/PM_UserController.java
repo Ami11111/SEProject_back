@@ -152,9 +152,8 @@ public class PM_UserController {
             }
             PM_User returnUser = userRepository.findById(id);
 
-            // 根据id查询数据库中的用户
-            PM_User currentUser = userRepository.findById(Integer.parseInt(user_id));
-            if(id != Integer.parseInt(user_id) && !currentUser.isRole()) {
+            PM_Admin admin = adminRepository.findById(Integer.parseInt(user_id));
+            if(id != Integer.parseInt(user_id) && admin==null) {
                 response.put("message", "Unauthorized");
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
@@ -192,10 +191,9 @@ public class PM_UserController {
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
 
-            // 查找用户
-            PM_User currentUser = userRepository.findById(Integer.parseInt(user_id));
+            PM_Admin admin = adminRepository.findById(Integer.parseInt(user_id));
 
-            if(currentUser.isRole() || id == Integer.parseInt(user_id)){
+            if(admin!=null || id == Integer.parseInt(user_id)){
                 // 根据id更新数据库中的用户
                 userRepository.updateUserInfoById(id, name, phone, email, address);
                 PM_User updated_user = new PM_User();
@@ -238,9 +236,9 @@ public class PM_UserController {
             }
             PM_User returnUser = userRepository.findById(id);
 
-            PM_User currentUser = userRepository.findById(Integer.parseInt(user_id));
+            PM_Admin admin = adminRepository.findById(Integer.parseInt(user_id));
 
-            if (currentUser.isRole()) {
+            if (admin!=null) {
                 userRepository.resetPasswordById(id, newPassword);
                 response.put("message", "Password updated successfully");
                 return new ResponseEntity<>(response, HttpStatus.OK);
@@ -274,8 +272,8 @@ public class PM_UserController {
                 token = token.substring(7);
             }
             int adminId = Integer.parseInt(jwtUtil.extractUsername(token));
-            PM_User admin = userRepository.findById(adminId);
-            if (!admin.isRole()) {
+            PM_Admin admin = adminRepository.findById(adminId);
+            if (admin==null) {
                 response.put("message", "Unauthorized");
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
@@ -290,6 +288,7 @@ public class PM_UserController {
         }
     }
 
+    /*
     @PatchMapping("/admin/user")
     @ApiOperation(value = "管理员修改用户信息")
     public ResponseEntity<Object> adminUpdateUserInfo(@RequestBody Map<String, PM_User> requestBody, @RequestHeader("Authorization") String token) {
@@ -321,7 +320,7 @@ public class PM_UserController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
-
+    */
     @PatchMapping("/admin/user/password")
     @ApiOperation(value = "管理员重置密码")
     public ResponseEntity<Object> resetUserPassword(@RequestBody Map<String, Object> requestBody, @RequestHeader("Authorization") String token) {
