@@ -1,8 +1,10 @@
 package com.library.backend.controller;
 
 import com.library.backend.entity.PM_User;
+import com.library.backend.entity.PM_Admin;
 import com.library.backend.model.Result;
 import com.library.backend.repository.PM_UserRepository;
+import com.library.backend.repository.PM_AdminRepository;
 import com.library.backend.utils.JwtUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,6 +28,9 @@ public class PM_UserController {
 
     @Autowired
     private PM_UserRepository userRepository;
+
+    @Autowired
+    private PM_AdminRepository adminRepository;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -327,8 +332,8 @@ public class PM_UserController {
                 token = token.substring(7);
             }
             int adminId = Integer.parseInt(jwtUtil.extractUsername(token));
-            PM_User admin = userRepository.findById(adminId);
-            if (!admin.isRole()) {
+            PM_Admin admin = adminRepository.findById(adminId);
+            if (admin==null) {
                 response.put("message", "Access denied");
                 return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
             }
@@ -364,8 +369,8 @@ public class PM_UserController {
                 token = token.substring(7);
             }
             int adminId = Integer.parseInt(jwtUtil.extractUsername(token));
-            PM_User admin = userRepository.findById(adminId);
-            if (!admin.isRole()) {
+            PM_Admin admin = adminRepository.findById(adminId);
+            if (admin==null) {
                 response.put("message", "Access denied");
                 return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
             }
