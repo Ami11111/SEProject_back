@@ -107,8 +107,8 @@ public class PM_UserController {
             // 从Token中解析用户id
             String id = jwtUtil.extractUsername(token);
             // 根据id查询数据库中的用户
-            PM_User admin = userRepository.findById(Integer.parseInt(String.valueOf(id)));
-            if (!admin.isRole()) {
+            PM_Admin admin = adminRepository.findById(Integer.parseInt(id));
+            if (admin==null) {
                 response.put("message", "Access denied");
                 return new ResponseEntity<>(response, HttpStatus.FORBIDDEN); // 403 状态码
             }
@@ -277,7 +277,7 @@ public class PM_UserController {
                 response.put("message", "Unauthorized");
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
-            List<PM_User> users = userRepository.findAllByRole(false);
+            List<PM_User> users = userRepository.findAll();
             response.put("message", "Success");
             response.put("users", users);
             return new ResponseEntity<>(response, HttpStatus.OK);
