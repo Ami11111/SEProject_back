@@ -11,4 +11,6 @@ import java.util.List;
 
 public interface PM_AdminRepository extends JpaRepository<PM_Admin, Long> {
     PM_Admin findById(int id);
+
+    int countByIdAndPassword(int id, String password);
 }
