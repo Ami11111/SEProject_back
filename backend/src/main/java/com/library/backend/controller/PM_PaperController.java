@@ -63,7 +63,7 @@ public class PM_PaperController {
     public ResponseEntity<Object> findByAuthor(@RequestParam String author) {
         Map<String, Object> response = new HashMap<>();
         try {
-            List<PM_Paper> papers = paperRepository.findByAuthorListContaining(author, author, author); 
+            List<PM_Paper> papers = paperRepository.findByAuthorListContaining(author);
             if (!papers.isEmpty()) {
                 response.put("message", "Success");
                 response.put("papers", papers);

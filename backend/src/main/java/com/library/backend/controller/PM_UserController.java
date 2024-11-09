@@ -108,7 +108,7 @@ public class PM_UserController {
             String id = jwtUtil.extractUsername(token);
             // 根据id查询数据库中的用户
             PM_Admin admin = adminRepository.findById(Integer.parseInt(id));
-            if (admin==null) {
+            if (admin == null) {
                 response.put("message", "Access denied");
                 return new ResponseEntity<>(response, HttpStatus.FORBIDDEN); // 403 状态码
             }
@@ -146,14 +146,14 @@ public class PM_UserController {
             String user_id = jwtUtil.extractUsername(token);
 
             int cnt = userRepository.countById(id);
-            if(cnt == 0){
+            if (cnt == 0) {
                 response.put("message", "Not found");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
             PM_User returnUser = userRepository.findById(id);
 
             PM_Admin admin = adminRepository.findById(Integer.parseInt(user_id));
-            if(id != Integer.parseInt(user_id) && admin==null) {
+            if (id != Integer.parseInt(user_id) && admin == null) {
                 response.put("message", "Unauthorized");
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
@@ -186,14 +186,14 @@ public class PM_UserController {
             String user_id = jwtUtil.extractUsername(token);
 
             int cnt = userRepository.countById(id);
-            if(cnt == 0){
+            if (cnt == 0) {
                 response.put("message", "Not found");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
 
             PM_Admin admin = adminRepository.findById(Integer.parseInt(user_id));
 
-            if(admin!=null || id == Integer.parseInt(user_id)){
+            if (admin != null || id == Integer.parseInt(user_id)) {
                 // 根据id更新数据库中的用户
                 userRepository.updateUserInfoById(id, name, phone, email, address);
                 PM_User updated_user = new PM_User();
@@ -230,7 +230,7 @@ public class PM_UserController {
             String user_id = jwtUtil.extractUsername(token);
 
             int cnt = userRepository.countById(id);
-            if(cnt == 0){
+            if (cnt == 0) {
                 response.put("message", "Not found");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
@@ -238,12 +238,12 @@ public class PM_UserController {
 
             PM_Admin admin = adminRepository.findById(Integer.parseInt(user_id));
 
-            if (admin!=null) {
+            if (admin != null) {
                 userRepository.resetPasswordById(id, newPassword);
                 response.put("message", "Password updated successfully");
                 return new ResponseEntity<>(response, HttpStatus.OK);
-            } else if(id == Integer.parseInt(user_id)){
-                if(!returnUser.getPassword().equals(oldPassword)){
+            } else if (id == Integer.parseInt(user_id)) {
+                if (!returnUser.getPassword().equals(oldPassword)) {
                     response.put("message", "Current password is incorrect");
                     return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
                 } else {
@@ -262,7 +262,7 @@ public class PM_UserController {
         }
     }
 
-    @GetMapping ("/users")
+    @GetMapping("/users")
     @ApiOperation(value = "获取全部用户")
     public ResponseEntity<Object> getUserList(@RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
@@ -273,7 +273,7 @@ public class PM_UserController {
             }
             int adminId = Integer.parseInt(jwtUtil.extractUsername(token));
             PM_Admin admin = adminRepository.findById(adminId);
-            if (admin==null) {
+            if (admin == null) {
                 response.put("message", "Unauthorized");
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
@@ -332,7 +332,7 @@ public class PM_UserController {
             }
             int adminId = Integer.parseInt(jwtUtil.extractUsername(token));
             PM_Admin admin = adminRepository.findById(adminId);
-            if (admin==null) {
+            if (admin == null) {
                 response.put("message", "Access denied");
                 return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
             }
@@ -358,36 +358,35 @@ public class PM_UserController {
         }
     }
 
-    @DeleteMapping("/admin/user/{userId}")
-    @ApiOperation(value = "管理员删除用户")
+    @DeleteMapping("/users/{userId}")
+    @ApiOperation(value = "删除用户")
     public ResponseEntity<Object> deleteUserById(@PathVariable int userId, @RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // 403 拒绝非管理员
+            // 401 无权限
+            // 非管理员或用户本人(token错误好像会自动403)
             if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-            int adminId = Integer.parseInt(jwtUtil.extractUsername(token));
-            PM_Admin admin = adminRepository.findById(adminId);
-            if (admin==null) {
-                response.put("message", "Access denied");
-                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            int id = Integer.parseInt(jwtUtil.extractUsername(token));
+            PM_Admin admin = adminRepository.findById(id);
+            if (admin == null && id != userId) {
+                response.put("message", "Unauthorized");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
-            // 404
+            // 404 用户不存在
             if (userRepository.findById(userId) == null) {
                 response.put("message", "User not found");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
             userRepository.deleteById(userId);
-            // 204
+            // 204 删除成功
             response.put("message", "User deleted successfully");
             return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
-        } catch (HttpClientErrorException.Unauthorized e) {
-            // 401
-            response.put("message", "Unauthorized");
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            // 其他异常（比如，数据库外键约束等）
+            return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
 }
