@@ -2,7 +2,12 @@ package com.library.backend.entity;
 
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Lob;
+import javax.persistence.Enumerated;
+import javax.persistence.EnumType;
 
 @Data
 @Entity
@@ -10,35 +15,26 @@ import javax.persistence.*;
 public class PM_Paper {
     @Id
     private String doi;
-
     private String title;
-
     private String authorList;
-
     private String firstAuthor;
 
-    @Enumerated(EnumType.STRING)
-    private Ccf ccf;
-    public enum Ccf {
-        A,
-        B,
-        C
-    }
+    @Enumerated(EnumType.STRING) 
+    private CCF ccf; 
+
+    @Lob 
+    private byte[] fileData; 
 
     @Enumerated(EnumType.STRING)
     private Status status;
-    public enum Status {
-        NO_SUBMIT,
-        REVIEW,
-        REJECT,
-        APPROVE
-    }
-    @Lob
-    @Column(columnDefinition = "MEDIUMBLOB")
-    private byte[] fileData;
 
-    @Lob  // 可选注解
-    @Column(columnDefinition = "TEXT")
     private String recommend;
 
+    public enum CCF {
+        A, B, C
+    }
+
+    public enum Status {
+        notSubmit, review, approve, reject
+    }
 }
