@@ -37,6 +37,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
             .authorizeRequests().antMatchers("/api/login").permitAll() // 登录接口允许所有访问
+            .antMatchers("/api/admin/login").permitAll() // 管理员登录接口允许所有访问
             .antMatchers("/api/register").permitAll() // 注册接口允许所有访问
             .anyRequest().authenticated()
             .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // 不使用 Session
