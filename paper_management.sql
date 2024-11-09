@@ -49,10 +49,10 @@ drop table if exists `paper`;
 create table if not exists `paper` (
   `doi` varchar(255) primary key comment 'DOI',
   `title` varchar(255) comment '名称',
-  `authorList` varchar(255) comment '作者列表',
-  `firstAuthor` varchar(255) comment '第一作者，所有',
+  `author_list` varchar(255) comment '作者列表',
+  `first_author` varchar(255) comment '第一作者，所有',
   `ccf` enum('A','B','C') comment 'CCF分区',
-  `fileData` mediumblob comment 'PDF文件',
+  `file_data` mediumblob comment 'PDF文件',
   `status` enum('notSubmit','review','approve','reject') not null comment '未提交，审核中，通过，驳回',
   `recommend` text comment '选填，驳回意见',
   index `doi` (`doi`) using btree
@@ -69,20 +69,20 @@ insert into `paper` values
 ('10.1016/j.ijar.2024.109266','On the enumeration of non-dominated matroids with imprecise weights',
 'chen,liang;','chen,liang','B',null,'reject','内容不实');
 
-# table authorPaper
-drop table if exists `authorPaper`;
-create table if not exists `authorPaper` (
- `authorId` int unsigned,
- `paperId` varchar(255),
+# table author_paper
+drop table if exists `author_paper`;
+create table if not exists `author_paper` (
+ `a_id` int unsigned,
+ `p_id` varchar(255),
  `seq` enum('first','second','third') not null comment '第一二三作者',
- primary key (`authorId`,`paperId`),
- constraint `authorPaper1` foreign key(`authorId`) references `user`(`id`), 
- constraint `authorPaper2` foreign key(`paperId`) references `paper`(`doi`), 
- index `authorId` (`authorId`) using btree
+ primary key (`a_id`,`p_id`),
+ constraint `author_paper1` foreign key(`a_id`) references `user`(`id`), 
+ constraint `author_paper2` foreign key(`p_id`) references `paper`(`doi`), 
+ index `a_id` (`a_id`) using btree
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
-delete from `authorPaper`;
-insert into `authorPaper` values
+delete from `author_paper`;
+insert into `author_paper` values
 (21808081,'10.1016/j.artint.2023.104057','first'),
 (21606061,'10.1016/j.artint.2023.104057','first'),
 (21606062,'10.1016/j.artint.2023.104057','second'),
@@ -96,7 +96,7 @@ insert into `authorPaper` values
 (21808081,'10.1016/j.ijar.2024.109266','first'),
 (21606063,'10.1016/j.ijar.2024.109266','first');
 
-# table paperAdditional
+# table paper_additional
 # correspondingAuthor：通讯作者
 # pageCount：论文页数
 # conferenceOrPeriodical：会议期刊全称
@@ -107,18 +107,18 @@ insert into `authorPaper` values
 # receiptTime：接收时间
 # publishTime：发表时间
 # type：论文类型
-drop table if exists `paperAdditional`;
-create table if not exists `paperAdditional` (
+drop table if exists `paper_additional`;
+create table if not exists `paper_additional` (
   `doi` varchar(255) comment 'DOI',
   `key` enum('correspondingAuthor','pageCount','conferenceOrPeriodical','acronym',
   'publisher','fund','submitTime','receiptTime','publishTime','type') not null,
   `value` varchar(255) not null,
-  constraint `paperAdditional1` foreign key(`doi`) references `paper`(`doi`), 
+  constraint `paper_additional1` foreign key(`doi`) references `paper`(`doi`), 
   index `doi` (`doi`) using btree
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
-delete from `paperAdditional`;
-insert into `paperAdditional` values
+delete from `paper_additional`;
+insert into `paper_additional` values
 ('10.1016/j.artint.2023.104057','pageCount','26'),
 ('10.1016/j.artint.2023.104057','conferenceOrPeriodical','Artificial Intelligence'),
 ('10.1016/j.artint.2023.104057','acronym','AI'),
