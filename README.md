@@ -12,8 +12,6 @@
 
 # 项目结构
 
-![image-20241018223820131](C:\Users\Tool Man\AppData\Roaming\Typora\typora-user-images\image-20241018223820131.png)
-
 其中主要负责业务逻辑的包为（根据开发的逻辑顺序列举如下）：
 
 1. entity：定义数据库的表对应的数据类。
