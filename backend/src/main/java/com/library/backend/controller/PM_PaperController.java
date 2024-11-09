@@ -108,23 +108,23 @@ public class PM_PaperController {
         }
     }
 
-    //@GetMapping("/papers/{author}")
-    //@ApiOperation(value = "根据作者查询论文")
-    //public ResponseEntity<Object> findByAuthor(@RequestParam String author) {
-    //    Map<String, Object> response = new HashMap<>();
-    //    try {
-    //        List<PM_Paper> papers = paperRepository.findByAuthorListContaining(author, author, author);
-    //        if (!papers.isEmpty()) {
-    //            response.put("message", "Success");
-    //            response.put("papers", papers);
-    //            return new ResponseEntity<>(response, HttpStatus.OK);
-    //        } else {
-    //            response.put("message", "未找到该作者的论文");
-    //            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-    //        }
-    //    } catch (Exception e) {
-    //        response.put("message", e.toString());
-    //        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    //    }
-    //}
+    @GetMapping("/papers/{author}")
+    @ApiOperation(value = "根据作者查询论文")
+    public ResponseEntity<Object> findByAuthor(@RequestParam String author) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<PM_Paper> papers = paperRepository.findByAuthorListContaining(author, author, author);
+            if (!papers.isEmpty()) {
+                response.put("message", "Success");
+                response.put("papers", papers);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.put("message", "未找到该作者的论文");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            response.put("message", e.toString());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
 }
