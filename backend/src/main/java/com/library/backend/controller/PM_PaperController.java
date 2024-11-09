@@ -89,11 +89,11 @@ public class PM_PaperController {
 
     @GetMapping("/papers/{doi}")
     @ApiOperation(value = "根据DOI查询论文")
-    public ResponseEntity<Object> findByDoi(@RequestParam String doi) {
+    public ResponseEntity<Object> findByDoi(@PathVariable String doi) {
         Map<String, Object> response = new HashMap<>();
         try {
             List<PM_Paper> paperList = paperRepository.findByDoi(doi);
-
+    
             if (!paperList.isEmpty()) {
                 response.put("message", "Success");
                 response.put("paper", paperList);
@@ -110,10 +110,10 @@ public class PM_PaperController {
 
     @GetMapping("/papers/{author}")
     @ApiOperation(value = "根据作者查询论文")
-    public ResponseEntity<Object> findByAuthor(@RequestParam String author) {
+    public ResponseEntity<Object> findByAuthor(@PathVariable String author) {
         Map<String, Object> response = new HashMap<>();
         try {
-            List<PM_Paper> papers = paperRepository.findByAuthorListContaining(author, author, author);
+            List<PM_Paper> papers = paperRepository.findByAuthorListContaining(author);
             if (!papers.isEmpty()) {
                 response.put("message", "Success");
                 response.put("papers", papers);
