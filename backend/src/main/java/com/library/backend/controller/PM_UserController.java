@@ -36,7 +36,7 @@ public class PM_UserController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    @ApiOperation(value = "用户登录")
+    @ApiOperation(value = "普通用户登录")
     public ResponseEntity<Object> login(@RequestBody PM_User user) {
         try {
             // Map存储返回信息的键值对，Spring框架会自动转换为JSON格式返回给前端
@@ -48,6 +48,32 @@ public class PM_UserController {
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
             }
             PM_User returnUser = userRepository.findById(user.getId());
+            // 根据用户名生成 JWT Token， 只在登录成功时生成，后续操作由JWT过滤器自动校验前端发来的Token
+            String jwtToken = jwtUtil.generateToken(String.valueOf(returnUser.getId()));
+            response.put("token", jwtToken);
+            returnUser.setPassword("");
+            response.put("user", returnUser);
+            // 返回一个 ResponseEntity 对象，包含响应体和状态码
+            return new ResponseEntity<>(response, HttpStatus.OK); // 200 状态码
+        } catch (Exception e) {
+
+            return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500 状态码
+        }
+    }
+
+    @PostMapping("/admin/login")
+    @ApiOperation(value = "管理员登录")
+    public ResponseEntity<Object> adminLogin(@RequestBody PM_Admin admin) {
+        try {
+            // Map存储返回信息的键值对，Spring框架会自动转换为JSON格式返回给前端
+            Map<String, Object> response = new HashMap<>();
+            int cnt = adminRepository.countByIdAndPassword(admin.getId(), admin.getPassword());
+            if (cnt == 0) {
+                response.put("message", "Invalid ID or password");
+                // 返回一个 ResponseEntity 对象，包含响应体和状态码
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
+            }
+            PM_Admin returnUser = adminRepository.findById(admin.getId());
             // 根据用户名生成 JWT Token， 只在登录成功时生成，后续操作由JWT过滤器自动校验前端发来的Token
             String jwtToken = jwtUtil.generateToken(String.valueOf(returnUser.getId()));
             response.put("token", jwtToken);
@@ -94,7 +120,7 @@ public class PM_UserController {
         }
     }
 
-    @PostMapping("/admin/user")
+    @PostMapping("/users")
     @ApiOperation(value = "管理员添加用户")
     public ResponseEntity<Object> adminAddUser(@RequestBody PM_User user, @RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
