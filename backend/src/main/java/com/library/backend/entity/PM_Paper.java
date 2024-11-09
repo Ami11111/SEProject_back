@@ -2,12 +2,7 @@ package com.library.backend.entity;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Lob;
-import javax.persistence.Enumerated;
-import javax.persistence.EnumType;
+import javax.persistence.*;
 
 @Data
 @Entity
@@ -16,13 +11,16 @@ public class PM_Paper {
     @Id
     private String doi;
     private String title;
+    @Column(name = "author_list")
     private String authorList;
+    @Column(name = "first_author")
     private String firstAuthor;
 
     @Enumerated(EnumType.STRING) 
     private CCF ccf; 
 
-    @Lob 
+    @Lob
+    @Column(name = "file_data")
     private byte[] fileData; 
 
     @Enumerated(EnumType.STRING)

@@ -113,6 +113,7 @@ create table if not exists `paper_additional` (
   `key` enum('correspondingAuthor','pageCount','conferenceOrPeriodical','acronym',
   'publisher','fund','submitTime','receiptTime','publishTime','type') not null,
   `value` varchar(255) not null,
+  primary key (`doi`,`key`),
   constraint `paper_additional1` foreign key(`doi`) references `paper`(`doi`), 
   index `doi` (`doi`) using btree
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
