@@ -154,6 +154,18 @@ insert into `paper_additional` values
 ('10.1016/j.ijar.2024.109266','publishTime','2024-08-08'),
 ('10.1016/j.ijar.2024.109266','type','regular');
 
+# table delete_requests
+drop table if exists `delete_requests`;
+create table if not exists `delete_requests` (
+    request_id INT AUTO_INCREMENT PRIMARY KEY,   -- 请求ID，自动递增的主键
+    user_id INT NOT NULL,                        -- 用户ID，用于标识哪个用户发起了请求
+    doi VARCHAR(255) NOT NULL                 -- 论文的DOI，唯一标识论文
+);
+
+delete from `delete_requests`;
+insert into `delete_requests`  (user_id, doi)
+values
+(21606061,"10.1016/j.artint.2023.104057");
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
