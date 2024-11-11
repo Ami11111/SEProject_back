@@ -191,7 +191,6 @@ public class PM_PaperController {
 
 
 
-    /*
     @PostMapping("/papers/{doi}/file")
     @ApiOperation(value = "上传论文文件")
     public ResponseEntity<Object> uploadPaperFile(@PathVariable("doi") String encodedDoi, @RequestParam("file") MultipartFile file, @RequestHeader("Authorization") String token) {
@@ -320,6 +319,5 @@ public class PM_PaperController {
         }
     }
 
-     */
 
 }
