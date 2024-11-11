@@ -49,10 +49,12 @@ drop table if exists `paper`;
 create table if not exists `paper` (
   `doi` varchar(255) primary key comment 'DOI',
   `title` varchar(255) comment '名称',
-  `author_list` varchar(255) comment '作者列表',
   `first_author` varchar(255) comment '第一作者，所有',
+  `second_author` varchar(255) comment '第二作者，所有',
+  `third_author` varchar(255) comment '第三作者，所有',
   `ccf` enum('A','B','C') comment 'CCF分区',
   `file_data` mediumblob comment 'PDF文件',
+  `url` varchar(255) comment '下载链接',
   `status` enum('notSubmit','review','approve','reject') not null comment '未提交，审核中，通过，驳回',
   `recommend` text comment '选填，驳回意见',
   index `doi` (`doi`) using btree
@@ -61,13 +63,13 @@ create table if not exists `paper` (
 delete from `paper`;
 insert into `paper` values
 ('10.1016/j.artint.2023.104057','Evolving interpretable decision trees for reinforcement learning',
-'chen,xiang;feng;liang;','chen,xiang;','A',null,'notSubmit',null),
+'chen,xiang','feng','liang','A',null,null,'notSubmit',null),
 ('10.1145/3626238','Design and Validation of a Virtual Reality Mental Rotation Test',
-'feng;chen;liang;','feng','B',null,'review',null),
+'feng','chen','liang','B',null,null,'review',null),
 ('10.1016/j.cviu.2018.10.002','Visual tracking in video sequencesbasedonbiologically inspired mechanisms',
-'xiang;feng;liang;','xiang','B',null,'approve',null),
+'xiang','feng','liang','B',null,null,'approve',null),
 ('10.1016/j.ijar.2024.109266','On the enumeration of non-dominated matroids with imprecise weights',
-'chen,liang;','chen,liang','B',null,'reject','内容不实');
+'chen,liang',null,null,'B',null,null,'reject','内容不实');
 
 # table author_paper
 drop table if exists `author_paper`;
