@@ -14,6 +14,7 @@ public class PM_PaperAdditional implements Serializable {
     private String doi;
     @Id
     @Enumerated(EnumType.STRING)
+    @Column(name = "`key`")
     private Key key;
     private String value;
 
