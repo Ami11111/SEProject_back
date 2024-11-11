@@ -12,7 +12,7 @@ import java.io.Serializable;
 public class PM_AuthorPaper implements Serializable {
     @Id
     @Column(name = "a_id")
-    private String aId;
+    private int aId;
     @Id
     @Column(name = "p_id")
     private String pId;

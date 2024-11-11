@@ -21,6 +21,6 @@ public interface PM_PaperRepository extends JpaRepository<PM_Paper, String> {
 
     List<PM_Paper> findAll();
 
-    List<PM_Paper> findByDoi(String doi);
+    PM_Paper findByDoi(String doi);
 
 }
