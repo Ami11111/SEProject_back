@@ -10,4 +10,5 @@ public interface PM_AuthorPaperRepository extends JpaRepository<PM_AuthorPaper, 
     @Transactional
     @Modifying
     void deleteAllByPaperId(String paperId);
+
 }
