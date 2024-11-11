@@ -12,10 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api")
@@ -49,14 +46,37 @@ public class PM_PaperController {
             }
 
             String doi = new String(Base64.getDecoder().decode(encodedDoi));
+            List<PM_Paper> paper = paperRepository.findByDoi(doi);
             // 检查是否存在对应 DOI 的论文
-            if (paperRepository.countByDoi(doi) == 0) {
+            if (paper.isEmpty()) {
                 response.put("message", "No paper found with DOI: " + doi);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404 Not Found
             }
             // 检查用户是否为doi对应论文的作者
-            String authorList = paperRepository.findByDoi(doi).get(0).getAuthorList();
-            if (!authorList.contains(user.getName())) {
+            // 获取作者字段，并以半角逗号分隔成列表
+            String[] firstAuthors = paper.get(0).getFirstAuthor().split(",");
+            String[] secondAuthors = paper.get(0).getSecondAuthor().split(",");
+            String[] thirdAuthors = paper.get(0).getThirdAuthor().split(",");
+            boolean isAuthor = false;
+            for (String author : firstAuthors) {
+                if (author.trim().equals(user.getName())) {
+                    isAuthor = true;
+                    break;
+                }
+            }
+            for (String author : secondAuthors) {
+                if (author.trim().equals(user.getName())) {
+                    isAuthor = true;
+                    break;
+                }
+            }
+            for (String author : thirdAuthors) {
+                if (author.trim().equals(user.getName())) {
+                    isAuthor = true;
+                    break;
+                }
+            }
+            if (!isAuthor) {
                 response.put("message", "Access denied");
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
             }
