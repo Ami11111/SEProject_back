@@ -23,4 +23,7 @@ public interface PM_PaperRepository extends JpaRepository<PM_Paper, String> {
 
     PM_Paper findByDoi(String doi);
 
+    @Transactional
+    @Modifying
+    void deleteByDoi(String doi);
 }

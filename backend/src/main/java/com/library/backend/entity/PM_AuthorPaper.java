@@ -12,10 +12,10 @@ import java.io.Serializable;
 public class PM_AuthorPaper implements Serializable {
     @Id
     @Column(name = "a_id")
-    private int aId;
+    private int authorId;
     @Id
     @Column(name = "p_id")
-    private String pId;
+    private String paperId;
     @Enumerated(EnumType.STRING) 
     private Seq seq;
 

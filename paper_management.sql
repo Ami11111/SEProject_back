@@ -80,7 +80,8 @@ create table if not exists `author_paper` (
  primary key (`a_id`,`p_id`),
  constraint `author_paper1` foreign key(`a_id`) references `user`(`id`), 
  constraint `author_paper2` foreign key(`p_id`) references `paper`(`doi`), 
- index `a_id` (`a_id`) using btree
+ index `a_id` (`a_id`) using btree,
+ index `p_id` (`p_id`) using btree
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 delete from `author_paper`;
