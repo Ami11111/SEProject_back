@@ -1,5 +1,6 @@
 package com.library.backend.controller;
 
+import com.library.backend.dto.PaperDTO;
 import com.library.backend.entity.PM_AuthorPaper;
 import com.library.backend.entity.PM_Paper;
 import com.library.backend.entity.PM_PaperAdditional;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.util.*;
 
 
@@ -56,13 +58,15 @@ public class PM_PaperController {
     @Autowired
     private PaperUtil paperUtil;
 
+
     @PostMapping("/papers")
     @ApiOperation(value = "添加论文")
-    public ResponseEntity<Object> insertPaper(@RequestHeader("Authorization") String token, @RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<Object> insertPaper(@Valid @RequestHeader("Authorization") String token, @RequestBody PaperDTO paperDTO) {
         Map<String, Object> response = new HashMap<>();
         try {
             // 401 无权限
-            // 用户不存在，用户没有维护姓名信息，或用户不是该论文的作者
+            // 用户不存在，用户没有维护姓名信息，或用户不是该论文的作者;
+            // status字段不为“notSubmit”或“review”
             if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
@@ -77,58 +81,28 @@ public class PM_PaperController {
                 response.put("message", "Unauthorized");
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
-            ArrayList<String> firstAuthor = (ArrayList<String>) requestBody.get("firstAuthor");
-            ArrayList<String> secondAuthor = (ArrayList<String>) requestBody.get("secondAuthor");
-            ArrayList<String> thirdAuthor = (ArrayList<String>) requestBody.get("thirdAuthor");
-            boolean isFirst = firstAuthor.contains(name);
-            boolean isSecond = secondAuthor.contains(name);
-            boolean isThird = thirdAuthor.contains(name);
-            if (!(isFirst || isSecond || isThird)) {
+            String seq = paperService.getSeq(paperDTO, name);
+            if (seq == null) {
+                response.put("message", "Unauthorized");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            }
+            String status = paperDTO.getStatus();
+            if (status != "notSubmit" && status != "review") {
                 response.put("message", "Unauthorized");
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
 
-            // paper数据组装
-            PM_Paper paper = new PM_Paper();
-            String doi = (String) requestBody.get("DOI");
-            paper.setDoi(doi);
-            paper.setTitle((String) requestBody.get("title"));
-            paper.setCcf(PM_Paper.CCF.valueOf((String) requestBody.get("CCF")));
-            paper.setUrl((String) requestBody.get("url"));
-            paper.setStatus(PM_Paper.Status.valueOf((String) requestBody.get("status")));
-            if (paper.getStatus() == PM_Paper.Status.reject)
-                paper.setRecommend((String) requestBody.get("recommend"));
-            if (!firstAuthor.isEmpty())
-                paper.setFirstAuthor(String.join(",", firstAuthor));
-            if (!secondAuthor.isEmpty())
-                paper.setSecondAuthor(String.join(",", secondAuthor));
-            if (!thirdAuthor.isEmpty())
-                paper.setThirdAuthor(String.join(",", thirdAuthor));
 
-            // paper_additional多条数据组装
-            ArrayList<Map<String, String>> additional = (ArrayList<Map<String, String>>) requestBody.get("additional");
-            ArrayList<PM_PaperAdditional> paperAdditionals=new ArrayList<>();
-            for (Map<String, String> map : additional) {
-                PM_PaperAdditional paperAdditional = new PM_PaperAdditional();
-                paperAdditional.setDoi(doi);
-                paperAdditional.setKey(PM_PaperAdditional.Key.valueOf(map.get("key")));
-                paperAdditional.setValue(map.get("value"));
-                paperAdditionals.add(paperAdditional);
-            }
-
-            // author_paper数据组装
+            // 数据组装
+            PM_Paper paper = paperService.paperDTOToPaper(paperDTO);
+            ArrayList<PM_PaperAdditional> paperAdditionals = paperService.paperDTOToPaperAdditionals(paperDTO);
             PM_AuthorPaper authorPaper = new PM_AuthorPaper();
             authorPaper.setAuthorId(id);
-            authorPaper.setPaperId(doi);
-            if (isFirst)
-                authorPaper.setSeq(PM_AuthorPaper.Seq.first);
-            else if (isSecond)
-                authorPaper.setSeq(PM_AuthorPaper.Seq.second);
-            else
-                authorPaper.setSeq(PM_AuthorPaper.Seq.third);
+            authorPaper.setPaperId(paperDTO.getDOI());
+            authorPaper.setSeq(PM_AuthorPaper.Seq.valueOf(seq));
 
             // 原子执行，失败回滚
-            paperService.insertPaper(paper,paperAdditionals,authorPaper);
+            paperService.insertPaper(paper, paperAdditionals, authorPaper);
 
             // 200 成功
             response.put("message", "Paper inserted successfully");
@@ -142,9 +116,8 @@ public class PM_PaperController {
     @DeleteMapping("/papers/{doi}")
     @ApiOperation(value = "删除论文")
     public ResponseEntity<Object> deletePaper(@RequestHeader("Authorization") String token, @PathVariable("doi") String doi) {
-        Map<String,Object> response=new HashMap<>();
-        System.out.println(doi);
-        try{
+        Map<String, Object> response = new HashMap<>();
+        try {
             // 401 无权限
             // 非管理员
             if (token.startsWith("Bearer ")) {
@@ -166,14 +139,62 @@ public class PM_PaperController {
             paperService.deletePaper(doi);
 
             // 204 删除成功
-            response.put("message","Paper deleted successfully");
-            return new ResponseEntity<>(response,HttpStatus.NO_CONTENT);
+            response.put("message", "Paper deleted successfully");
+            return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
 
-        }catch(Exception e){
+        } catch (Exception e) {
             // 其他异常
             return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/papers/{doi}")
+    @ApiOperation(value = "修改论文")
+    public ResponseEntity<Object> updatePaper(@Valid @RequestHeader("Authorization") String token, @RequestBody PaperDTO paperDTO) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // 401 无权限
+            // 用户不存在，用户没有维护姓名信息，或用户不是该论文的作者
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            int id = Integer.parseInt(jwtUtil.extractUsername(token));
+            PM_User user = userRepository.findById(id);
+            if (user == null) {
+                response.put("message", "Unauthorized");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            }
+            String name = user.getName();
+            if (name == null) {
+                response.put("message", "Unauthorized");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            }
+            String seq = paperService.getSeq(paperDTO, name);
+            if (seq == null) {
+                response.put("message", "Unauthorized");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            }
+
+            // 数据组装
+            PM_Paper paper = paperService.paperDTOToPaper(paperDTO);
+            ArrayList<PM_PaperAdditional> paperAdditionals = paperService.paperDTOToPaperAdditionals(paperDTO);
+            PM_AuthorPaper authorPaper = new PM_AuthorPaper();
+            authorPaper.setAuthorId(id);
+            authorPaper.setPaperId(paperDTO.getDOI());
+            authorPaper.setSeq(PM_AuthorPaper.Seq.valueOf(seq));
+
+            // 原子执行，失败回滚
+            paperService.insertPaper(paper, paperAdditionals, authorPaper);
+
+            // 200 成功
+            response.put("message", "Paper inserted successfully");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            // 其他异常，如enum型CCF、Status不匹配等
+            return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
     @PostMapping("/papers/{doi}/file")
