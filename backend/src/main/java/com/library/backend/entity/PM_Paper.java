@@ -11,17 +11,23 @@ public class PM_Paper {
     @Id
     private String doi;
     private String title;
-    @Column(name = "author_list")
-    private String authorList;
     @Column(name = "first_author")
     private String firstAuthor;
 
-    @Enumerated(EnumType.STRING) 
-    private CCF ccf; 
+    @Column(name = "second_author")
+    private String secondAuthor;
+
+    @Column(name = "third_author")
+    private String thirdAuthor;
+
+    @Enumerated(EnumType.STRING)
+    private CCF ccf;
 
     @Lob
     @Column(name = "file_data")
-    private byte[] fileData; 
+    private byte[] fileData;
+
+    private String url;
 
     @Enumerated(EnumType.STRING)
     private Status status;

@@ -395,8 +395,7 @@ public class PM_UserController {
                 token = token.substring(7);
             }
             int id = Integer.parseInt(jwtUtil.extractUsername(token));
-            PM_Admin admin = adminRepository.findById(id);
-            if (admin == null && id != userId) {
+            if (adminRepository.findById(id) == null && id != userId) {
                 response.put("message", "Unauthorized");
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
