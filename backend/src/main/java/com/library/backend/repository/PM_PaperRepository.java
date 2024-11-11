@@ -23,5 +23,4 @@ public interface PM_PaperRepository extends JpaRepository<PM_Paper, String> {
 
     PM_Paper findByDoi(String doi);
 
-//    List<PM_Paper> findByAuthorListContaining(String author);
 }
