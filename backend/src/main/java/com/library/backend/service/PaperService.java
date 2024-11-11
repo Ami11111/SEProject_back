@@ -28,13 +28,25 @@ public class PaperService {
 
     @Transactional
     public void insertPaper(PM_Paper paper, ArrayList<PM_PaperAdditional> paperAdditionals, PM_AuthorPaper authorPaper) {
+        // review添加
         paperRepository.save(paper); // save插入数据，或更新数据（有，则覆盖）
         // 删除原先的paper_additional数据
         paperAdditionalRepository.deleteAllByDoi(paper.getDoi());
         // 插入新的paper_additional数据
         paperAdditionalRepository.saveAll(paperAdditionals);
-        // 已关联的作者-论文不会被删除
+        // approve不能添加，且认领必须approve，所以doi在author_paper中只会有一条数据
+        authorPaperRepository.deleteAllByPaperId(paper.getDoi());
         authorPaperRepository.save(authorPaper);
+    }
+
+    @Transactional
+    public void insertPaper(PM_Paper paper, ArrayList<PM_PaperAdditional> paperAdditionals) {
+        // notSubmit草稿添加
+        paperRepository.save(paper); // save插入数据，或更新数据（有，则覆盖）
+        // 删除原先的paper_additional数据
+        paperAdditionalRepository.deleteAllByDoi(paper.getDoi());
+        // 插入新的paper_additional数据
+        paperAdditionalRepository.saveAll(paperAdditionals);
     }
 
     @Transactional
