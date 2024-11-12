@@ -16,12 +16,17 @@ import com.library.backend.service.PaperService;
 import com.library.backend.utils.JwtUtil;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -337,6 +342,43 @@ public class PM_PaperController {
         } catch (Exception e) {
             response.put("message", e.toString());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/files/download/{doi}")
+    @ApiOperation(value = "下载论文文件")
+    public ResponseEntity<Object> downloadPaperFile(@PathVariable("doi") String encodedDoi,
+                                                    @RequestHeader("Authorization") String token){
+        Map<String, Object> response = new HashMap<>();
+        try {
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            String id = jwtUtil.extractUsername(token);
+            PM_User user = userRepository.findById(Integer.parseInt(id));
+            if (user == null) {
+                if (jwtService.isAdmin(token, response) == null) return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            }
+            String doi = new String(Base64.getDecoder().decode(encodedDoi));
+            PM_Paper paper = paperRepository.findByDoi(doi);
+            if (paper == null) {
+                response.put("message", "No file found with DOI: " + doi);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404 Not Found
+            }
+            byte[] fileData = paper.getFileData();
+
+            // 文件流和内容类型设置
+            InputStream inputStream = new ByteArrayInputStream(fileData);
+            InputStreamResource resource = new InputStreamResource(inputStream);
+
+            // 设置 HTTP 响应头
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentDispositionFormData("attachment", paper.getDoi()); // 设置文件名
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM); // 设置内容类型为下载文件
+            return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR); // 500 状态码
         }
     }
 
