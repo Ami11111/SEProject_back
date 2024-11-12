@@ -80,22 +80,12 @@ public class PM_PaperController {
             }
 
             String status = paperDTO.getStatus();
-            switch (status) {
-                // notSubmit仅插入paper和paper_additional
-                case "notSubmit": {
-                    PM_Paper paper = paperService.paperDTOToPaper(paperDTO);
-                    ArrayList<PM_PaperAdditional> paperAdditionals = paperService.paperDTOToPaperAdditionals(paperDTO);
-                    // 原子执行，失败回滚
-                    paperService.insertPaper(paper, paperAdditionals);
-                    // 200 成功
-                    response.put("message", "Paper inserted successfully");
-                    return new ResponseEntity<>(response, HttpStatus.OK);
-                }
-                // review插入paper、paper_additional、author_paper
-                case "review": {
-                    String seq = paperService.getSeq(paperDTO, name);
-                    // 401 无权限 用户不是论文作者
-                    if (seq == null) {
+            if(status=="notSubmit"||status=="review")
+            {
+                // 插入paper、paper_additional、author_paper
+                String seq = paperService.getSeq(paperDTO, name);
+                // 401 无权限 用户不是论文作者
+                if (seq == null) {
                         response.put("message", "Unauthorized");
                         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
                     }
@@ -109,8 +99,8 @@ public class PM_PaperController {
                     // 200 成功
                     response.put("message", "Paper inserted successfully");
                     return new ResponseEntity<>(response, HttpStatus.OK);
-                }
-                default:
+            }
+            else {
                     // null,approve,reject
                     response.put("message", "Unauthorized");
                     return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
