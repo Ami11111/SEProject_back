@@ -6,11 +6,15 @@ import com.library.backend.entity.PM_Paper;
 import com.library.backend.entity.PM_PaperAdditional;
 import com.library.backend.entity.PM_User;
 import com.library.backend.entity.PM_Admin;
+import com.library.backend.entity.PM_UserPaperClaim;
+import com.library.backend.entity.PM_UserPaperDelete;
 import com.library.backend.repository.PM_AuthorPaperRepository;
 import com.library.backend.repository.PM_PaperAdditionalRepository;
 import com.library.backend.repository.PM_PaperRepository;
 import com.library.backend.repository.PM_UserRepository;
 import com.library.backend.repository.PM_AdminRepository;
+import com.library.backend.repository.PM_UserPaperClaimRepository;
+import com.library.backend.repository.PM_UserPaperDeleteRepository;
 import com.library.backend.service.PaperService;
 import com.library.backend.utils.JwtUtil;
 import com.library.backend.utils.PaperUtil;
@@ -264,17 +268,17 @@ public class PM_PaperController {
             }
 
             String doi = new String(Base64.getDecoder().decode(encodedDoi));
-            List<PM_Paper> paper = paperRepository.findByDoi(doi);
+            PM_Paper paper = paperRepository.findByDoi(doi);
             // 检查是否存在对应 DOI 的论文
-            if (paper.isEmpty()) {
+            if (paper==null) {
                 response.put("message", "No paper found with DOI: " + doi);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404 Not Found
             }
             // 检查用户是否为doi对应论文的作者
             // 获取作者字段，并以半角逗号分隔成列表
-            String[] firstAuthors = paper.get(0).getFirstAuthor().split(",");
-            String[] secondAuthors = paper.get(0).getSecondAuthor().split(",");
-            String[] thirdAuthors = paper.get(0).getThirdAuthor().split(",");
+            String[] firstAuthors = paper.getFirstAuthor().split(",");
+            String[] secondAuthors = paper.getSecondAuthor().split(",");
+            String[] thirdAuthors = paper.getThirdAuthor().split(",");
             boolean isAuthor = false;
             for (String author : firstAuthors) {
                 if (author.trim().equals(user.getName())) {
@@ -333,9 +337,9 @@ public class PM_PaperController {
     public ResponseEntity<Object> findByDoi(@PathVariable String doi) {
         Map<String, Object> response = new HashMap<>();
         try {
-            List<PM_Paper> paperList = paperRepository.findByDoi(doi);
+            PM_Paper paperList = paperRepository.findByDoi(doi);
 
-            if (!paperList.isEmpty()) {
+            if (!(paperList==null)) {
                 response.put("message", "Success");
                 response.put("paper", paperList);
                 return new ResponseEntity<>(response, HttpStatus.OK);
@@ -349,6 +353,7 @@ public class PM_PaperController {
         }
     }
 
+    /*
     @GetMapping("/papers/{author}")
     @ApiOperation(value = "根据作者查询论文")
     public ResponseEntity<Object> findByAuthor(@PathVariable String author) {
@@ -368,6 +373,10 @@ public class PM_PaperController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
+     */
+
+    // TO FIX
+    /*
     @PostMapping("/papers/request/claim")
     @ApiOperation(value = "用户认领论文")
     public ResponseEntity<Object> claimPaper(@RequestBody PM_UserPaperClaim userPaperClaim) {
@@ -510,5 +519,7 @@ public class PM_PaperController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
+
+     */
 
 }

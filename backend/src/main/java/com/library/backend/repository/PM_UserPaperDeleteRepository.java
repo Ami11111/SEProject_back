@@ -1,6 +1,6 @@
 package com.library.backend.repository;
 
-import com.library.backend.entity.PM_UserPaperClaim;
+import com.library.backend.entity.PM_UserPaperDelete;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

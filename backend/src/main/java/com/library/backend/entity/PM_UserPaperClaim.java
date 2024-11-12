@@ -12,9 +12,9 @@ import java.io.Serializable;
 public class PM_UserPaperClaim implements Serializable {
     @Id
     @Column(name = "author_id")
-    private int authorId;
+    public int authorId;
 
     @Id
     @Column(name = "paper_doi")
-    private String paperDoi;
+    public String paperDoi;
 }
