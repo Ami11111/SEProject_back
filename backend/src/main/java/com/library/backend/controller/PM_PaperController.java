@@ -274,30 +274,8 @@ public class PM_PaperController {
                 response.put("message", "No paper found with DOI: " + doi);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404 Not Found
             }
-            // 检查用户是否为doi对应论文的作者
-            // 获取作者字段，并以半角逗号分隔成列表
-            String[] firstAuthors = paper.getFirstAuthor().split(",");
-            String[] secondAuthors = paper.getSecondAuthor().split(",");
-            String[] thirdAuthors = paper.getThirdAuthor().split(",");
-            boolean isAuthor = false;
-            for (String author : firstAuthors) {
-                if (author.trim().equals(user.getName())) {
-                    isAuthor = true;
-                    break;
-                }
-            }
-            for (String author : secondAuthors) {
-                if (author.trim().equals(user.getName())) {
-                    isAuthor = true;
-                    break;
-                }
-            }
-            for (String author : thirdAuthors) {
-                if (author.trim().equals(user.getName())) {
-                    isAuthor = true;
-                    break;
-                }
-            }
+            // 判断用户是否为论文的作者
+            boolean isAuthor = paperService.isAuthorOfPaper(user.getName(), paper.getFirstAuthor(), paper.getSecondAuthor(), paper.getThirdAuthor());
             if (!isAuthor) {
                 response.put("message", "Access denied");
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
@@ -313,6 +291,7 @@ public class PM_PaperController {
             return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500 状态码
         }
     }
+
 
 
 
@@ -352,6 +331,5 @@ public class PM_PaperController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
-
 
 }
