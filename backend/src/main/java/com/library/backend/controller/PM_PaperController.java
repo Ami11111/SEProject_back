@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -299,6 +300,7 @@ public class PM_PaperController {
             if (user == null) {
                 if (jwtService.isAdmin(token, response) == null) return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
+
             String doi = null;
             Integer userIdInt = null;
             if (!encodedDoi.isEmpty()) {
@@ -307,13 +309,38 @@ public class PM_PaperController {
             if (!userId.isEmpty()) {
                 userIdInt = Integer.parseInt(userId);
             }
+
             List<PM_Paper> papers = paperRepository.findPapersByUserIdAndDoi(userIdInt, doi);
+            List<Map<String, Object>> papersWithAuthorsArray = papers.stream().map(paper -> {
+                Map<String, Object> paperData = new HashMap<>();
+                paperData.put("DOI", paper.getDoi());
+                paperData.put("title", paper.getTitle());
+                paperData.put("firstAuthor", paper.getFirstAuthorsArray());
+                paperData.put("secondAuthor", paper.getSecondAuthorsArray());
+                paperData.put("thirdAuthor", paper.getThirdAuthorsArray());
+                paperData.put("CCF", paper.getCcf());
+                paperData.put("status", paper.getStatus());
+                paperData.put("recommend", paper.getRecommend());
+                // 假设获取的 PM_PaperAdditional 列表
+                List<PM_PaperAdditional> additionalList = paperAdditionalRepository.findByDoi(paper.getDoi());
+
+                // 移除每个对象中的 doi 字段
+                List<Map<String, String>> additionalWithoutDoi = additionalList.stream()
+                    .map(PM_PaperAdditional::toMapWithoutDoi)
+                    .collect(Collectors.toList());
+                paperData.put("additional", additionalWithoutDoi);
+                paperData.put("url", paper.getUrl());
+
+                return paperData;
+            }).collect(Collectors.toList());
+
             response.put("message", "Success");
-            response.put("papers", papers);
-            return new ResponseEntity<>(response, HttpStatus.OK);  // 200 状态码
+            response.put("papers", papersWithAuthorsArray);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.put("message", e.toString());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
+
 }
