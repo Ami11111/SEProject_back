@@ -1,7 +1,7 @@
 package com.library.backend.service;
 
-import com.library.backend.entity.PM_User;
-import com.library.backend.repository.PM_UserRepository;
+import com.library.backend.entity.PM_Admin;
+import com.library.backend.repository.PM_AdminRepository;
 import com.library.backend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +16,7 @@ public class JwtService {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private PM_UserRepository userRepository;
+    private PM_AdminRepository adminRepository;
 
     public ResponseEntity<Object> isAdmin(String token, Map<String, Object> response) {
         // 检验操作者是否为管理员
@@ -25,8 +25,8 @@ public class JwtService {
         }
         String id = jwtUtil.extractUsername(token);
         // 根据id查询数据库中的用户
-        PM_User user = userRepository.findById(Integer.parseInt(id));
-        if (user == null) {
+        PM_Admin admin = adminRepository.findById(Integer.parseInt(id));
+        if (admin == null) {
             response.put("message", "Access denied");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
