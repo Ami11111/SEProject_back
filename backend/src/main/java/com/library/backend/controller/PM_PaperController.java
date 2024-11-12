@@ -357,8 +357,10 @@ public class PM_PaperController {
             String id = jwtUtil.extractUsername(token);
             PM_User user = userRepository.findById(Integer.parseInt(id));
             if (user == null) {
-                if (jwtService.isAdmin(token, response) == null) return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+                response.put("message", "Access denied");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
             }
+
             String doi = new String(Base64.getDecoder().decode(encodedDoi));
             PM_Paper paper = paperRepository.findByDoi(doi);
             if (paper == null) {
