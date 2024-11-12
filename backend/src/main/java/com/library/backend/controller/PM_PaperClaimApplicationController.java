@@ -75,7 +75,7 @@ public class PM_PaperClaimApplicationController {
             }
 
             // 404 论文不存在
-            doi = Arrays.toString(Base64.getDecoder().decode(doi));
+            doi = new String(Base64.getDecoder().decode(doi));
             PM_Paper paper = paperRepository.findByDoi(doi);
             if (paper == null) {
                 response.put("message", "Paper not found");
@@ -151,7 +151,7 @@ public class PM_PaperClaimApplicationController {
             }
 
             // 404 认领申请不存在
-            doi = Arrays.toString(Base64.getDecoder().decode(doi));
+            doi = new String(Base64.getDecoder().decode(doi));
             PM_AuthorPaperClaim userPaperClaim = authorPaperClaimRepository.findByAuthorIdAndPaperDoi(authorId, doi);
             if (userPaperClaim == null) {
                 response.put("message", "Claim application not found");
@@ -199,7 +199,7 @@ public class PM_PaperClaimApplicationController {
             }
 
             // 404 认领申请不存在
-            doi = Arrays.toString(Base64.getDecoder().decode(doi));
+            doi = new String(Base64.getDecoder().decode(doi));
             if (authorPaperClaimRepository.findByAuthorIdAndPaperDoi(authorId, doi) == null) {
                 response.put("message", "Claim application not found");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
