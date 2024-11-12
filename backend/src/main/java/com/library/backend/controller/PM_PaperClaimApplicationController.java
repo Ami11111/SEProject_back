@@ -171,7 +171,7 @@ public class PM_PaperClaimApplicationController {
             authorPaper.setAuthorId(authorId);
             authorPaper.setPaperId(doi);
             authorPaper.setSeq(PM_AuthorPaper.Seq.valueOf(seq));
-            paperClaimApplicationService.approveClaim(authorPaper,userPaperClaim);
+            authorPaperRepository.save(authorPaper);
 
             // 200 成功
             response.put("message", "Claim approved successfully");
