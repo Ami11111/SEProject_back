@@ -177,9 +177,9 @@ insert into `delete_requests` (`user_id`, `doi`) values
 (21606063,'10.1234/j.group.2024.11.11');
 
 
-# table user_paper_claim
-drop table if exists `user_paper_claim`;
-CREATE TABLE IF NOT EXISTS `user_paper_claim` (
+# table author_paper_claim
+drop table if exists `author_paper_claim`;
+CREATE TABLE IF NOT EXISTS `author_paper_claim` (
 `author_id` INT UNSIGNED NOT NULL COMMENT '用户ID，对应user表中的id',
 `paper_doi` VARCHAR(255) NOT NULL COMMENT '论文DOI，对应paper表中的doi',
 PRIMARY KEY (`author_id`, `paper_doi`),
@@ -187,8 +187,8 @@ FOREIGN KEY (`author_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE C
 FOREIGN KEY (`paper_doi`) REFERENCES `paper` (`doi`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
-delete from `user_paper_claim`;
-insert into `user_paper_claim` values
+delete from `author_paper_claim`;
+insert into `author_paper_claim` values
 (21606061,'10.1234/j.kmjb.2024.11.02'),
 (21606062,'10.1234/j.kmjb.2024.11.02'),
 (21808080,'10.1234/j.kmjb.2024.11.02');
