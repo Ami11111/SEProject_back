@@ -9,8 +9,8 @@ import com.library.backend.repository.PM_PaperAdditionalRepository;
 import com.library.backend.repository.PM_PaperRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -62,6 +62,22 @@ public class PaperService {
             return null;
     }
 
+    public String getSeq(PM_Paper paper, String name) {
+        String firstAuthor = paper.getFirstAuthor();
+        if (firstAuthor != null && !firstAuthor.isEmpty())
+            if (Arrays.asList(firstAuthor.split(",")).contains(name))
+                return "first";
+        String secondAuthor = paper.getSecondAuthor();
+        if (secondAuthor != null && !secondAuthor.isEmpty())
+            if (Arrays.asList(secondAuthor.split(",")).contains(name))
+                return "second";
+        String thirdAuthor=paper.getThirdAuthor();
+        if (thirdAuthor != null && !thirdAuthor.isEmpty())
+            if (Arrays.asList(thirdAuthor.split(",")).contains(name))
+                return "third";
+        return null;
+    }
+
     public PM_Paper paperDTOToPaper(PaperDTO paperDTO) {
         // 根据PaperDTO组装paper
         PM_Paper paper = new PM_Paper();
@@ -103,14 +119,15 @@ public class PaperService {
 
     /**
      * 检查用户是否在任意作者字段中
+     *
      * @param userName 用户名
-     * @param authors 多个作者字段
+     * @param authors  多个作者字段
      * @return 如果用户是任意一个作者，返回 true；否则返回 false
      */
     public boolean isAuthorOfPaper(String userName, String... authors) {
         return Arrays.stream(authors)
-                     .flatMap(authorField -> Arrays.stream(authorField.split(","))) // 将每个作者字段按逗号分割
-                     .map(String::trim) // 去掉多余的空格
-                     .anyMatch(author -> author.equalsIgnoreCase(userName)); // 检查是否匹配用户名
+                .flatMap(authorField -> Arrays.stream(authorField.split(","))) // 将每个作者字段按逗号分割
+                .map(String::trim) // 去掉多余的空格
+                .anyMatch(author -> author.equalsIgnoreCase(userName)); // 检查是否匹配用户名
     }
 }
