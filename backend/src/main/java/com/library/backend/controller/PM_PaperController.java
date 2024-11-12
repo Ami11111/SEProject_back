@@ -283,7 +283,36 @@ public class PM_PaperController {
         }
     }
 
+    @PostMapping("/papers/author")
+    @ApiOperation(value = "添加论文作者")
+    public ResponseEntity<Object> addPaperAuthor(@RequestHeader("Authorization") String token,
+                                                      @RequestParam("doi") String encodedDoi,
+                                                      @RequestParam("id") int userId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            String id = jwtUtil.extractUsername(token);
+            PM_Admin admin = adminRepository.findById(Integer.parseInt(id));
+            if (admin == null) {
+                response.put("message", "Access denied");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
+            }
+            String doi = new String(java.util.Base64.getDecoder().decode(encodedDoi));
 
+            PM_AuthorPaper ap = new PM_AuthorPaper();
+            ap.setAuthorId(userId);
+            
+            authorPaperRepository.save(ap);
+
+            response.put("message", "Success");
+            return new ResponseEntity<>(response, HttpStatus.NO_CONTENT); // 204 状态码
+        } catch (Exception e) {
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500 状态码
+        }
+    }
 
 
     @GetMapping("/papers")
