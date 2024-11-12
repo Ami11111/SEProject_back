@@ -10,9 +10,13 @@ import com.library.backend.repository.PM_PaperRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Map;
 
 @Service
@@ -129,5 +133,19 @@ public class PaperService {
                 .flatMap(authorField -> Arrays.stream(authorField.split(","))) // 将每个作者字段按逗号分割
                 .map(String::trim) // 去掉多余的空格
                 .anyMatch(author -> author.equalsIgnoreCase(userName)); // 检查是否匹配用户名
+    }
+
+    public void uploadFile(MultipartFile file, String doi) throws IOException {
+        // 创建文件实体对象
+        paperRepository.updateFileDataByDoi(file.getBytes(), doi);
+
+        String base64Doi = Base64.getUrlEncoder().encodeToString(doi.getBytes());
+        // 生成下载URL并保存
+        String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/files/download/")
+                .path(base64Doi)
+                .toUriString();
+        // 更新数据库中的URL
+        paperRepository.updateUrlByDoi(downloadUrl, doi);
     }
 }

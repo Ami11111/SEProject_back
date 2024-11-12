@@ -170,7 +170,7 @@ create table if not exists `delete_requests` (
     `doi` VARCHAR(255) NOT NULL comment '论文的DOI，唯一标识论文',
 	FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (`doi`) REFERENCES `paper` (`doi`) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 delete from `delete_requests`;
 insert into `delete_requests` (`user_id`, `doi`) values
