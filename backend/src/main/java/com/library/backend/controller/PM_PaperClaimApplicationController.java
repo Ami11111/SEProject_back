@@ -15,10 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @RestController
@@ -41,9 +38,6 @@ public class PM_PaperClaimApplicationController {
 
     @Autowired
     private PM_AuthorPaperClaimRepository authorPaperClaimRepository;
-
-    @Autowired
-    private PM_UserPaperDeleteRepository userPaperDeleteRepository;
 
     @Autowired
     private PaperService paperService;
@@ -81,6 +75,7 @@ public class PM_PaperClaimApplicationController {
             }
 
             // 404 论文不存在
+            doi = new String(Base64.getDecoder().decode(doi));
             PM_Paper paper = paperRepository.findByDoi(doi);
             if (paper == null) {
                 response.put("message", "Paper not found");
@@ -142,7 +137,7 @@ public class PM_PaperClaimApplicationController {
 
     @PostMapping("/papers/author")
     @ApiOperation(value = "添加论文作者")
-    public ResponseEntity<Object> approveClaim(@RequestHeader("Authorization") String token, @RequestParam int authorId, @RequestParam String doi) {
+    public ResponseEntity<Object> approveClaim(@RequestHeader("Authorization") String token, @RequestParam("id") int authorId, @RequestParam("doi") String doi) {
         Map<String, Object> response = new HashMap<>();
         try {
             // 401 无权限 非管理员
@@ -156,6 +151,7 @@ public class PM_PaperClaimApplicationController {
             }
 
             // 404 认领申请不存在
+            doi = new String(Base64.getDecoder().decode(doi));
             PM_AuthorPaperClaim userPaperClaim = authorPaperClaimRepository.findByAuthorIdAndPaperDoi(authorId, doi);
             if (userPaperClaim == null) {
                 response.put("message", "Claim application not found");
@@ -175,7 +171,7 @@ public class PM_PaperClaimApplicationController {
             authorPaper.setAuthorId(authorId);
             authorPaper.setPaperId(doi);
             authorPaper.setSeq(PM_AuthorPaper.Seq.valueOf(seq));
-            paperClaimApplicationService.approveClaim(authorPaper,userPaperClaim);
+            authorPaperRepository.save(authorPaper);
 
             // 200 成功
             response.put("message", "Claim approved successfully");
@@ -203,6 +199,7 @@ public class PM_PaperClaimApplicationController {
             }
 
             // 404 认领申请不存在
+            doi = new String(Base64.getDecoder().decode(doi));
             if (authorPaperClaimRepository.findByAuthorIdAndPaperDoi(authorId, doi) == null) {
                 response.put("message", "Claim application not found");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);

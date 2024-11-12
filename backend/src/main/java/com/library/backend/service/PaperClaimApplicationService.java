@@ -16,10 +16,6 @@ public class PaperClaimApplicationService {
     @Autowired
     private PM_AuthorPaperClaimRepository authorPaperClaimRepository;
 
-    @Transactional
-    public void approveClaim(PM_AuthorPaper authorPaper, PM_AuthorPaperClaim authorPaperClaim) {
-        authorPaperRepository.save(authorPaper);
-        authorPaperClaimRepository.delete(authorPaperClaim);
-    }
+
 
 }
