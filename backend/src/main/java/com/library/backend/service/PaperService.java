@@ -49,16 +49,6 @@ public class PaperService {
         paperAdditionalRepository.saveAll(paperAdditionals);
     }
 
-    @Transactional
-    public void deletePaper(String doi) {
-        // paper_additional删除数据
-        paperAdditionalRepository.deleteAllByDoi(doi);
-        // author_paper删除数据
-        authorPaperRepository.deleteAllByPaperId(doi);
-        // paper删除数据
-        paperRepository.deleteByDoi(doi);
-    }
-
     public String getSeq(PaperDTO paperDTO, String name) {
         // 判断用户是否为论文作者
         if (paperDTO.getFirstAuthor().contains(name))
