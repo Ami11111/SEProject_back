@@ -69,7 +69,11 @@ insert into `paper` values
 ('10.1016/j.cviu.2018.10.002','Visual tracking in video sequencesbasedonbiologically inspired mechanisms',
 'xiang','feng','liang','B',null,null,'approve',null),
 ('10.1016/j.ijar.2024.109266','On the enumeration of non-dominated matroids with imprecise weights',
-'chen,liang',null,null,'B',null,null,'reject','内容不实');
+'chen,liang',null,null,'B',null,null,'reject','内容不实'),
+('10.1234/j.kmjb.2024.11.02','kmjb project research based on the evaluation from members',
+'liang','xiang,feng','chen','B',null,null,'approve',null),
+('10.1234/j.group.2024.11.11','Teamwork: group cooperation and division of labor',
+'liang','feng','chen','C',null,null,'approve',null);
 
 # table author_paper
 drop table if exists `author_paper`;
@@ -97,7 +101,10 @@ insert into `author_paper` values
 (21606062,'10.1016/j.cviu.2018.10.002','second'),
 (21606063,'10.1016/j.cviu.2018.10.002','third'),
 (21808081,'10.1016/j.ijar.2024.109266','first'),
-(21606063,'10.1016/j.ijar.2024.109266','first');
+(21606063,'10.1016/j.ijar.2024.109266','first'),
+(21606063,'10.1234/j.kmjb.2024.11.02','first'),
+(21606063,'10.1234/j.group.2024.11.11','first');
+
 
 # table paper_additional
 # correspondingAuthor：通讯作者
@@ -176,3 +183,29 @@ PRIMARY KEY (`author_id`, `paper_doi`),
 FOREIGN KEY (`author_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
 FOREIGN KEY (`paper_doi`) REFERENCES `paper` (`doi`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+delete from `user_paper_claim`;
+insert into `user_paper_claim` values
+(21606061,'10.1234/j.kmjb.2024.11.02'),
+(21606062,'10.1234/j.kmjb.2024.11.02'),
+(21808080,'10.1234/j.kmjb.2024.11.02');
+
+drop table if exists `user_paper_delete`;
+CREATE TABLE IF NOT EXISTS `user_paper_delete` (
+`author_id` INT UNSIGNED NOT NULL COMMENT '用户ID，对应user表中的id',
+`paper_doi` VARCHAR(255) NOT NULL COMMENT '论文DOI，对应paper表中的doi',
+PRIMARY KEY (`author_id`, `paper_doi`),
+FOREIGN KEY (`author_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY (`paper_doi`) REFERENCES `paper` (`doi`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+delete from `user_paper_delete`;
+insert into `user_paper_delete` values
+(21606063,'10.1234/j.group.2024.11.11');
+
+
+/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
