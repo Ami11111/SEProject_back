@@ -7,9 +7,9 @@ import java.io.Serializable;
 
 @Data
 @Entity
-@Table(name = "user_paper_claim")
-@IdClass(PM_UserPaperClaim.class)
-public class PM_UserPaperClaim implements Serializable {
+@Table(name = "author_paper_claim")
+@IdClass(PM_AuthorPaperClaim.class)
+public class PM_AuthorPaperClaim implements Serializable {
     @Id
     @Column(name = "author_id")
     public int authorId;
