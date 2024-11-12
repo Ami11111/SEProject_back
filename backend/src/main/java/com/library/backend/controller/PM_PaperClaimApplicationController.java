@@ -40,9 +40,6 @@ public class PM_PaperClaimApplicationController {
     private PM_AuthorPaperClaimRepository authorPaperClaimRepository;
 
     @Autowired
-    private PM_UserPaperDeleteRepository userPaperDeleteRepository;
-
-    @Autowired
     private PaperService paperService;
 
     @Autowired

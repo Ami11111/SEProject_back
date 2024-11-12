@@ -11,7 +11,6 @@ import com.library.backend.repository.PM_PaperAdditionalRepository;
 import com.library.backend.repository.PM_PaperRepository;
 import com.library.backend.repository.PM_UserRepository;
 import com.library.backend.repository.PM_AdminRepository;
-import com.library.backend.repository.PM_UserPaperDeleteRepository;
 import com.library.backend.service.JwtService;
 import com.library.backend.service.PaperService;
 import com.library.backend.utils.JwtUtil;
