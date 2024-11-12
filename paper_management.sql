@@ -78,8 +78,8 @@ create table if not exists `author_paper` (
  `p_id` varchar(255),
  `seq` enum('first','second','third') not null comment '第一二三作者',
  primary key (`a_id`,`p_id`),
- constraint `author_paper1` foreign key(`a_id`) references `user`(`id`), 
- constraint `author_paper2` foreign key(`p_id`) references `paper`(`doi`), 
+ constraint `author_paper1` foreign key(`a_id`) references `user`(`id`) on delete cascade on update cascade, 
+ constraint `author_paper2` foreign key(`p_id`) references `paper`(`doi`) on delete cascade on update cascade, 
  index `a_id` (`a_id`) using btree,
  index `p_id` (`p_id`) using btree
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
@@ -117,7 +117,7 @@ create table if not exists `paper_additional` (
   'publisher','fund','submitTime','receiptTime','publishTime','type') not null,
   `value` varchar(255) not null,
   primary key (`doi`,`key`),
-  constraint `paper_additional1` foreign key(`doi`) references `paper`(`doi`), 
+  constraint `paper_additional1` foreign key(`doi`) references `paper`(`doi`) on delete cascade on update cascade, 
   index `doi` (`doi`) using btree
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
@@ -167,17 +167,12 @@ insert into `delete_requests`  (user_id, doi)
 values
 (21606061,"10.1016/j.artint.2023.104057");
 
-/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
-
+# table user_paper_claim
 drop table if exists `user_paper_claim`;
-CREATE TABLE IF NOT EXISTS user_paper_claim (
-author_id INT UNSIGNED NOT NULL COMMENT '用户ID，对应user表中的id',
-paper_doi VARCHAR(255) NOT NULL COMMENT '论文DOI，对应paper表中的doi',
-PRIMARY KEY (author_id, paper_doi),
-FOREIGN KEY (author_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE,
-FOREIGN KEY (paper_doi) REFERENCES paper(doi) ON DELETE CASCADE ON UPDATE CASCADE
+CREATE TABLE IF NOT EXISTS `user_paper_claim` (
+`author_id` INT UNSIGNED NOT NULL COMMENT '用户ID，对应user表中的id',
+`paper_doi` VARCHAR(255) NOT NULL COMMENT '论文DOI，对应paper表中的doi',
+PRIMARY KEY (`author_id`, `paper_doi`),
+FOREIGN KEY (`author_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY (`paper_doi`) REFERENCES `paper` (`doi`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
