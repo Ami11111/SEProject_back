@@ -133,6 +133,7 @@ public class PM_PaperController {
             }
 
             // 404 论文不存在
+            doi = Arrays.toString(Base64.getDecoder().decode(doi));
             if (paperRepository.findByDoi(doi) == null) {
                 response.put("message", "Paper not found");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -169,6 +170,7 @@ public class PM_PaperController {
             }
 
             // 404 论文不存在
+            doi = Arrays.toString(Base64.getDecoder().decode(doi));
             if (paperRepository.findByDoi(doi) == null) {
                 response.put("message", "Paper not found");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
