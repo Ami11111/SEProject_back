@@ -48,19 +48,10 @@ public class PM_PaperController {
     private PM_PaperAdditionalRepository paperAdditionalRepository;
 
     @Autowired
-    private PM_UserPaperClaimRepository userPaperClaimRepository;
-
-    @Autowired
-    private PM_UserPaperDeleteRepository userPaperDeleteRepository;
-
-    @Autowired
     private PaperService paperService;
 
     @Autowired
     private JwtUtil jwtUtil;
-
-    @Autowired
-    private PaperUtil paperUtil;
 
 
     @PostMapping("/papers")
