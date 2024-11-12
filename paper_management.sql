@@ -159,7 +159,7 @@ drop table if exists `delete_requests`;
 create table if not exists `delete_requests` (
     request_id INT AUTO_INCREMENT PRIMARY KEY,   -- 请求ID，自动递增的主键
     user_id INT NOT NULL,                        -- 用户ID，用于标识哪个用户发起了请求
-    doi VARCHAR(255) NOT NULL                 -- 论文的DOI，唯一标识论文
+    doi VARCHAR(255) NOT NULL              -- 论文的DOI，唯一标识论文
 );
 
 delete from `delete_requests`;
@@ -175,15 +175,6 @@ values
 
 drop table if exists `user_paper_claim`;
 CREATE TABLE IF NOT EXISTS user_paper_claim (
-author_id INT UNSIGNED NOT NULL COMMENT '用户ID，对应user表中的id',
-paper_doi VARCHAR(255) NOT NULL COMMENT '论文DOI，对应paper表中的doi',
-PRIMARY KEY (author_id, paper_doi),
-FOREIGN KEY (author_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE,
-FOREIGN KEY (paper_doi) REFERENCES paper(doi) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
-drop table if exists `user_paper_delete`;
-CREATE TABLE IF NOT EXISTS user_paper_delete (
 author_id INT UNSIGNED NOT NULL COMMENT '用户ID，对应user表中的id',
 paper_doi VARCHAR(255) NOT NULL COMMENT '论文DOI，对应paper表中的doi',
 PRIMARY KEY (author_id, paper_doi),
