@@ -134,6 +134,11 @@ public class PM_DeleteRequestsController {
                 response.put("message", "You are not the author of this paper");
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
             }
+            // 判断是否已经存在这个删除申请
+            if (deleteRequestsRepository.existsByDoiAndUserId(doi, Integer.parseInt(id))) {
+                response.put("message", "Delete request already exists");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
+            }
             // 创建删除申请
             PM_DeleteRequests deleteRequest = new PM_DeleteRequests();
             deleteRequest.setDoi(doi);
