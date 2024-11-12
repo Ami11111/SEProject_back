@@ -15,6 +15,7 @@ import com.library.backend.repository.PM_UserRepository;
 import com.library.backend.repository.PM_AdminRepository;
 import com.library.backend.repository.PM_UserPaperClaimRepository;
 import com.library.backend.repository.PM_UserPaperDeleteRepository;
+import com.library.backend.service.JwtService;
 import com.library.backend.service.PaperService;
 import com.library.backend.utils.JwtUtil;
 import com.library.backend.utils.PaperUtil;
@@ -53,6 +54,8 @@ public class PM_PaperController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private JwtService jwtService;
 
     @PostMapping("/papers")
     @ApiOperation(value = "添加论文")
@@ -241,21 +244,19 @@ public class PM_PaperController {
 
     @PostMapping("/papers/{doi}/file")
     @ApiOperation(value = "上传论文文件")
-    public ResponseEntity<Object> uploadPaperFile(@PathVariable("doi") String encodedDoi, @RequestParam("file") MultipartFile file, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<Object> uploadPaperFile(@PathVariable("doi") String encodedDoi,
+                                                  @RequestParam("file") MultipartFile file,
+                                                  @RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // 检验操作者是否为管理员
-            // 去掉 Bearer 前缀
             if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-            // 从Token中解析用户id
             String id = jwtUtil.extractUsername(token);
-            // 根据id查询数据库中的用户
             PM_User user = userRepository.findById(Integer.parseInt(id));
             if (user == null) {
                 response.put("message", "Access denied");
-                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN); // 403 状态码
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
             }
 
             String doi = new String(Base64.getDecoder().decode(encodedDoi));
@@ -266,14 +267,14 @@ public class PM_PaperController {
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404 Not Found
             }
             // 判断用户是否为论文的作者
-            boolean isAuthor = paperService.isAuthorOfPaper(user.getName(), paper.getFirstAuthor(), paper.getSecondAuthor(), paper.getThirdAuthor());
+            boolean isAuthor = paperService.isAuthorOfPaper(user.getName(),
+                    paper.getFirstAuthor(), paper.getSecondAuthor(), paper.getThirdAuthor());
             if (!isAuthor) {
                 response.put("message", "Access denied");
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 状态码
             }
-            // 上传文件
-            byte[] fileData = file.getBytes();
-            paperRepository.updateFileDataByDoi(fileData, doi);
+            // 上传文件并设置url
+            paperService.uploadFile(file, doi);
 
             response.put("message", "File uploaded successfully!");
             return new ResponseEntity<>(response, HttpStatus.OK); // 200 OK
@@ -283,44 +284,36 @@ public class PM_PaperController {
         }
     }
 
-
-
-
     @GetMapping("/papers")
     @ApiOperation(value = "查询所有论文")
-    public ResponseEntity<Object> findAll() {
+    public ResponseEntity<Object> findAll(@RequestHeader("Authorization") String token,
+                                          @RequestParam("doi") String encodedDoi,
+                                          @RequestParam("id") String userId) {
         Map<String, Object> response = new HashMap<>();
         try {
-            List<PM_Paper> papers = paperRepository.findAll();
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            String id = jwtUtil.extractUsername(token);
+            PM_User user = userRepository.findById(Integer.parseInt(id));
+            if (user == null) {
+                if (jwtService.isAdmin(token, response) == null) return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            }
+            String doi = null;
+            Integer userIdInt = null;
+            if (!encodedDoi.isEmpty()) {
+                doi = new String(Base64.getDecoder().decode(encodedDoi));
+            }
+            if (!userId.isEmpty()) {
+                userIdInt = Integer.parseInt(userId);
+            }
+            List<PM_Paper> papers = paperRepository.findPapersByUserIdAndDoi(userIdInt, doi);
             response.put("message", "Success");
             response.put("papers", papers);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);  // 200 状态码
         } catch (Exception e) {
             response.put("message", e.toString());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
-
-
-    @GetMapping("/papers/{doi}")
-    @ApiOperation(value = "根据DOI查询论文")
-    public ResponseEntity<Object> findByDoi(@PathVariable String doi) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            PM_Paper paperList = paperRepository.findByDoi(doi);
-
-            if (!(paperList==null)) {
-                response.put("message", "Success");
-                response.put("paper", paperList);
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            } else {
-                response.put("message", "未找到该论文");
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            response.put("message", e.toString());
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-    }
-
 }
