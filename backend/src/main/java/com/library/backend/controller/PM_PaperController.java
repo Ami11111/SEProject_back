@@ -290,7 +290,7 @@ public class PM_PaperController {
             String id = jwtUtil.extractUsername(token);
             PM_User user = userRepository.findById(Integer.parseInt(id));
             if (user == null) {
-                if (jwtService.isAdmin(token, response) == null) return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+                if (jwtService.isAdmin(token, response) != null) return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
 
             String doi = null;
