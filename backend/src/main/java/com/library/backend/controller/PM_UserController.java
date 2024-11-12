@@ -189,9 +189,7 @@ public class PM_UserController {
             response.put("user", returnUser);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            response.clear();
-            response.put("message", "Unauthorized");
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500 状态码
         }
     }
 
@@ -235,9 +233,7 @@ public class PM_UserController {
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception e) {
-            response.clear();
-            response.put("message", "Invalid format");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); // 400 状态码
+            return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500 状态码
         }
     }
 
@@ -282,9 +278,7 @@ public class PM_UserController {
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception e) {
-            response.clear();
-            response.put("message", "Invalid format");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); // 400 状态码
+            return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500 状态码
         }
     }
 
@@ -308,9 +302,7 @@ public class PM_UserController {
             response.put("users", users);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            // 400
-            response.put("message", "Invalid format");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR); // 500 状态码
         }
     }
 
