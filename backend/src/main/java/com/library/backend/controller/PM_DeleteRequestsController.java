@@ -1,6 +1,7 @@
 package com.library.backend.controller;
 
 
+import com.library.backend.dto.DeleteRequestsDTO;
 import com.library.backend.entity.PM_Admin;
 import com.library.backend.entity.PM_DeleteRequests;
 import com.library.backend.entity.PM_Paper;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/papers")
@@ -42,7 +44,7 @@ public class PM_DeleteRequestsController {
     @Autowired
     private PaperService paperService;
 
-        @GetMapping("/request/delete")
+    @GetMapping("/request/delete")
     @ApiOperation(value = "获取删除申请")
     public ResponseEntity<Object> getDeleteRequest(@RequestHeader("Authorization") String token) {
         Map<String, Object> response = new HashMap<>();
@@ -62,8 +64,11 @@ public class PM_DeleteRequestsController {
             }
             // 获取所有删除申请
             List<PM_DeleteRequests> deleteRequests = deleteRequestsRepository.findAll();
+            List<DeleteRequestsDTO> deleteRequestsDTO = deleteRequests.stream()
+                            .map(deleteRequest -> new DeleteRequestsDTO(String.valueOf(deleteRequest.getUserId()), deleteRequest.getDoi()))
+                    .collect(Collectors.toList());
             response.put("message", "Success");
-            response.put("deletes", deleteRequests);
+            response.put("deletes", deleteRequestsDTO);
             return new ResponseEntity<>(response, HttpStatus.OK); // 200 OK
         } catch (Exception e) {
             response.put("error", e.getMessage());
