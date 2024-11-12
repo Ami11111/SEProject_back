@@ -137,7 +137,7 @@ public class PM_PaperClaimApplicationController {
 
     @PostMapping("/papers/author")
     @ApiOperation(value = "添加论文作者")
-    public ResponseEntity<Object> approveClaim(@RequestHeader("Authorization") String token, @RequestParam int authorId, @RequestParam String doi) {
+    public ResponseEntity<Object> approveClaim(@RequestHeader("Authorization") String token, @RequestParam("id") int authorId, @RequestParam("doi") String doi) {
         Map<String, Object> response = new HashMap<>();
         try {
             // 401 无权限 非管理员
