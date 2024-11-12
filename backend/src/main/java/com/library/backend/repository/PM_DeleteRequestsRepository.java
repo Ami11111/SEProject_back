@@ -12,4 +12,6 @@ public interface PM_DeleteRequestsRepository extends JpaRepository<PM_DeleteRequ
 //    根据 doi 和 userId 删除记录
     @Transactional
     int deleteByDoiAndUserId(String doi, int userId);
+
+    boolean existsByDoiAndUserId(String doi, int userId);
 }
