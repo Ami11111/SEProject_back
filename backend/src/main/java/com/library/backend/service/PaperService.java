@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 @Service
@@ -110,4 +111,16 @@ public class PaperService {
         return paperAdditionals;
     }
 
+    /**
+     * 检查用户是否在任意作者字段中
+     * @param userName 用户名
+     * @param authors 多个作者字段
+     * @return 如果用户是任意一个作者，返回 true；否则返回 false
+     */
+    public boolean isAuthorOfPaper(String userName, String... authors) {
+        return Arrays.stream(authors)
+                     .flatMap(authorField -> Arrays.stream(authorField.split(","))) // 将每个作者字段按逗号分割
+                     .map(String::trim) // 去掉多余的空格
+                     .anyMatch(author -> author.equalsIgnoreCase(userName)); // 检查是否匹配用户名
+    }
 }
