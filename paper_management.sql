@@ -154,6 +154,18 @@ insert into `paper_additional` values
 ('10.1016/j.ijar.2024.109266','publishTime','2024-08-08'),
 ('10.1016/j.ijar.2024.109266','type','regular');
 
+# table delete_requests
+drop table if exists `delete_requests`;
+create table if not exists `delete_requests` (
+    request_id INT AUTO_INCREMENT PRIMARY KEY,   -- 请求ID，自动递增的主键
+    user_id INT NOT NULL,                        -- 用户ID，用于标识哪个用户发起了请求
+    doi VARCHAR(255) NOT NULL              -- 论文的DOI，唯一标识论文
+);
+
+delete from `delete_requests`;
+insert into `delete_requests`  (user_id, doi)
+values
+(21606061,"10.1016/j.artint.2023.104057");
 
 # table user_paper_claim
 drop table if exists `user_paper_claim`;
@@ -164,18 +176,3 @@ PRIMARY KEY (`author_id`, `paper_doi`),
 FOREIGN KEY (`author_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
 FOREIGN KEY (`paper_doi`) REFERENCES `paper` (`doi`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
-drop table if exists `user_paper_delete`;
-CREATE TABLE IF NOT EXISTS `user_paper_delete` (
-`author_id` INT UNSIGNED NOT NULL COMMENT '用户ID，对应user表中的id',
-`paper_doi` VARCHAR(255) NOT NULL COMMENT '论文DOI，对应paper表中的doi',
-PRIMARY KEY (`author_id`, `paper_doi`),
-FOREIGN KEY (`author_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-FOREIGN KEY (`paper_doi`) REFERENCES `paper` (`doi`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
-/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
