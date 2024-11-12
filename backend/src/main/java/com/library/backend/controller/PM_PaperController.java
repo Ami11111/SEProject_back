@@ -6,8 +6,6 @@ import com.library.backend.entity.PM_Paper;
 import com.library.backend.entity.PM_PaperAdditional;
 import com.library.backend.entity.PM_User;
 import com.library.backend.entity.PM_Admin;
-import com.library.backend.entity.PM_UserPaperClaim;
-import com.library.backend.entity.PM_UserPaperDelete;
 import com.library.backend.repository.PM_AuthorPaperRepository;
 import com.library.backend.repository.PM_PaperAdditionalRepository;
 import com.library.backend.repository.PM_PaperRepository;
@@ -18,7 +16,6 @@ import com.library.backend.repository.PM_UserPaperDeleteRepository;
 import com.library.backend.service.JwtService;
 import com.library.backend.service.PaperService;
 import com.library.backend.utils.JwtUtil;
-import com.library.backend.utils.PaperUtil;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -129,8 +126,8 @@ public class PM_PaperController {
             if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-            int id = Integer.parseInt(jwtUtil.extractUsername(token));
-            if (adminRepository.findById(id) == null) {
+            int adminId = Integer.parseInt(jwtUtil.extractUsername(token));
+            if (adminRepository.findById(adminId) == null) {
                 response.put("message", "Unauthorized");
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
