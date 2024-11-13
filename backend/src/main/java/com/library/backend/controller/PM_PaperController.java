@@ -80,7 +80,7 @@ public class PM_PaperController {
             }
 
             String status = paperDTO.getStatus();
-            if (status == "notSubmit" || status == "review") {
+            if (Objects.equals(status, "notSubmit") || Objects.equals(status, "review")) {
                 // 插入paper、paper_additional、author_paper
                 String seq = paperService.getSeq(paperDTO, name);
                 // 401 无权限 用户不是论文作者
@@ -171,7 +171,7 @@ public class PM_PaperController {
             // 只插入paper、paper_additional
             else if (admin != null) {
                 String status = paperDTO.getStatus();
-                if (status != "approve" && status != "reject") {
+                if (!Objects.equals(status, "approve") && !Objects.equals(status, "reject")) {
                     response.put("message", "Unauthorized");
                     return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
                 }
@@ -288,7 +288,7 @@ public class PM_PaperController {
             String id = jwtUtil.extractUsername(token);
             PM_User user = userRepository.findById(Integer.parseInt(id));
             if (user == null) {
-                if (jwtService.isAdmin(token, response) == null)
+                if (jwtService.isAdmin(token, response) != null)
                     return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
 
