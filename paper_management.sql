@@ -73,7 +73,9 @@ insert into `paper` values
 ('10.1234/j.kmjb.2024.11.02','kmjb project research based on the evaluation from members',
 'liang','xiang,feng','chen','B',null,null,'approve',null),
 ('10.1234/j.group.2024.11.11','Teamwork: group cooperation and division of labor',
-'liang','feng','chen','C',null,null,'approve',null);
+'liang','feng','chen','C',null,null,'approve',null),
+('10.1234/j.soft.2023.01.09','soft hard dududu',
+'liang','feng','chen','B',null,null,'approve',null);
 
 # table author_paper
 drop table if exists `author_paper`;
@@ -174,7 +176,8 @@ create table if not exists `delete_requests` (
 
 delete from `delete_requests`;
 insert into `delete_requests` (`user_id`, `doi`) values
-(21606063,'10.1234/j.group.2024.11.11');
+(21606063,'10.1234/j.group.2024.11.11'),
+(21606063,'10.1234/j.soft.2023.01.09');
 
 
 # table author_paper_claim
@@ -191,7 +194,7 @@ delete from `author_paper_claim`;
 insert into `author_paper_claim` values
 (21606061,'10.1234/j.kmjb.2024.11.02'),
 (21606062,'10.1234/j.kmjb.2024.11.02'),
-(21808080,'10.1234/j.kmjb.2024.11.02');
+(21808081,'10.1234/j.kmjb.2024.11.02');
 
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;

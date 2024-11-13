@@ -80,30 +80,28 @@ public class PM_PaperController {
             }
 
             String status = paperDTO.getStatus();
-            if(status=="notSubmit"||status=="review")
-            {
+            if (Objects.equals(status, "notSubmit") || Objects.equals(status, "review")) {
                 // 插入paper、paper_additional、author_paper
                 String seq = paperService.getSeq(paperDTO, name);
                 // 401 无权限 用户不是论文作者
                 if (seq == null) {
-                        response.put("message", "Unauthorized");
-                        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-                    }
-                    PM_Paper paper = paperService.paperDTOToPaper(paperDTO);
-                    ArrayList<PM_PaperAdditional> paperAdditionals = paperService.paperDTOToPaperAdditionals(paperDTO);
-                    PM_AuthorPaper authorPaper = new PM_AuthorPaper();
-                    authorPaper.setAuthorId(id);
-                    authorPaper.setPaperId(paperDTO.getDOI());
-                    authorPaper.setSeq(PM_AuthorPaper.Seq.valueOf(seq));
-                    paperService.insertPaper(paper, paperAdditionals, authorPaper);
-                    // 200 成功
-                    response.put("message", "Paper inserted successfully");
-                    return new ResponseEntity<>(response, HttpStatus.OK);
-            }
-            else {
-                    // null,approve,reject
                     response.put("message", "Unauthorized");
                     return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+                }
+                PM_Paper paper = paperService.paperDTOToPaper(paperDTO);
+                ArrayList<PM_PaperAdditional> paperAdditionals = paperService.paperDTOToPaperAdditionals(paperDTO);
+                PM_AuthorPaper authorPaper = new PM_AuthorPaper();
+                authorPaper.setAuthorId(id);
+                authorPaper.setPaperId(paperDTO.getDOI());
+                authorPaper.setSeq(PM_AuthorPaper.Seq.valueOf(seq));
+                paperService.insertPaper(paper, paperAdditionals, authorPaper);
+                // 200 成功
+                response.put("message", "Paper inserted successfully");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                // null,approve,reject
+                response.put("message", "Unauthorized");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception e) {
             // 其他异常，如enum型CCF、Status不匹配等
@@ -173,7 +171,7 @@ public class PM_PaperController {
             // 只插入paper、paper_additional
             else if (admin != null) {
                 String status = paperDTO.getStatus();
-                if (status != "approve" && status != "reject") {
+                if (!Objects.equals(status, "approve") && !Objects.equals(status, "reject")) {
                     response.put("message", "Unauthorized");
                     return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
                 }
@@ -255,7 +253,7 @@ public class PM_PaperController {
             String doi = new String(Base64.getDecoder().decode(encodedDoi));
             PM_Paper paper = paperRepository.findByDoi(doi);
             // 检查是否存在对应 DOI 的论文
-            if (paper==null) {
+            if (paper == null) {
                 response.put("message", "No paper found with DOI: " + doi);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404 Not Found
             }
@@ -290,7 +288,8 @@ public class PM_PaperController {
             String id = jwtUtil.extractUsername(token);
             PM_User user = userRepository.findById(Integer.parseInt(id));
             if (user == null) {
-                if (jwtService.isAdmin(token, response) != null) return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+                if (jwtService.isAdmin(token, response) != null)
+                    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             }
 
             String doi = null;
@@ -318,8 +317,8 @@ public class PM_PaperController {
 
                 // 移除每个对象中的 doi 字段
                 List<Map<String, String>> additionalWithoutDoi = additionalList.stream()
-                    .map(PM_PaperAdditional::toMapWithoutDoi)
-                    .collect(Collectors.toList());
+                        .map(PM_PaperAdditional::toMapWithoutDoi)
+                        .collect(Collectors.toList());
                 paperData.put("additional", additionalWithoutDoi);
                 paperData.put("url", paper.getUrl());
 
