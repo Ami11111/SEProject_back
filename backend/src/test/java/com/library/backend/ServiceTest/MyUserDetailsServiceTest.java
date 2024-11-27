@@ -23,7 +23,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 public class MyUserDetailsServiceTest {
     @Autowired
     private MyUserDetailsService myUserDetailsService;
-
+    /*
     @MockBean  //声明被修饰的组件将作为模拟组件，不使用真实组件
     private PM_UserRepository PM_userRepository;
 
@@ -49,6 +49,19 @@ public class MyUserDetailsServiceTest {
 
         try{
             myUserDetailsService.loadUserByUsername("789");
+        } catch (UsernameNotFoundException e) {
+            System.out.print(e);
+        }
+    }
+
+    */
+    @Test
+    void loadUserByUsernameWithoutMock(){
+        myUserDetailsService.loadUserByUsername("21808081");
+        myUserDetailsService.loadUserByUsername("21808080");
+
+        try{
+            myUserDetailsService.loadUserByUsername("123");
         } catch (UsernameNotFoundException e) {
             System.out.print(e);
         }

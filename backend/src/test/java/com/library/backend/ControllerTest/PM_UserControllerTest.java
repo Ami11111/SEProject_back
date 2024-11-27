@@ -42,8 +42,8 @@ public class PM_UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean //声明被修饰的组件将作为模拟组件，不使用真实组件
-    private JwtService jwtService;
+    //@MockBean
+    //private JwtService jwtService;
 
     private String userToken;
 
