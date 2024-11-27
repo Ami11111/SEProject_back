@@ -45,10 +45,6 @@ public class PM_UserControllerTest {
     //@MockBean
     //private JwtService jwtService;
 
-    private String userToken;
-
-    private String adminToken;
-
     /**
      * .perform() : 执行一个MockMvcRequestBuilders的请求；MockMvcRequestBuilders有.get()、.post()、.put()、.delete()等请求。
      * .andDo() : 添加一个MockMvcResultHandlers结果处理器,可以用于打印结果输出(MockMvcResultHandlers.print())。
@@ -66,8 +62,8 @@ public class PM_UserControllerTest {
                 .andReturn();
         String content = result.getResponse().getContentAsString();
         JSONObject jsonObject = new JSONObject(content);
-        //save token
-        userToken = jsonObject.getString("token");
+
+        String userToken = jsonObject.getString("token");
         System.out.print(userToken);
 
         this.mockMvc.perform(MockMvcRequestBuilders.post("/api/login")
@@ -89,8 +85,8 @@ public class PM_UserControllerTest {
                 .andReturn();
         String content = result.getResponse().getContentAsString();
         JSONObject jsonObject = new JSONObject(content);
-        //save token
-        adminToken = jsonObject.getString("token");
+
+        String adminToken = jsonObject.getString("token");
         System.out.print(adminToken);
 
         this.mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/login")
@@ -99,5 +95,253 @@ public class PM_UserControllerTest {
                         .content("{\"id\": 12345, \"password\": 54321}"))
                 .andDo(print())
                 .andExpect(status().is(401));
+    }
+
+    @Test
+    public void register() throws Exception {
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/api/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"id\": \"21808081\", \"password\": \"8081\"}"))
+                .andDo(print())
+                .andExpect(status().is(409));
+
+        MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"id\": 21808080, \"password\": 8080}"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+        String content = result.getResponse().getContentAsString();
+        JSONObject jsonObject = new JSONObject(content);
+
+        String adminToken = jsonObject.getString("token");
+        System.out.print(adminToken);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/21909090")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer "+adminToken));
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/api/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"id\": \"21909090\", \"password\": \"9090\"}"))
+                .andDo(print())
+                .andExpect(status().is(201));
+
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/21909090")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer "+adminToken))
+                .andDo(print())
+                .andExpect(status().is(204));
+    }
+
+    @Test
+    public void adminAddUser() throws Exception {
+        MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"id\": 21808080, \"password\": 8080}"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+        String content = result.getResponse().getContentAsString();
+        JSONObject jsonObject = new JSONObject(content);
+
+        String adminToken = jsonObject.getString("token");
+        System.out.print(adminToken);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"id\": \"21808081\", \"password\": 8081}")
+                        .header("Authorization", "Bearer "+adminToken))
+                .andDo(print())
+                .andExpect(status().is(409));
+
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/21909090")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer "+adminToken));
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"id\": \"21909090\", \"password\": 9090}")
+                        .header("Authorization", "Bearer "+adminToken))
+                .andDo(print())
+                .andExpect(status().is(201));
+
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/21909090")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer "+adminToken))
+                .andDo(print())
+                .andExpect(status().is(204));
+    }
+
+    @Test
+    public void getUserInfo() throws Exception {
+        MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"id\": 21808080, \"password\": 8080}"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+        String content = result.getResponse().getContentAsString();
+        JSONObject jsonObject = new JSONObject(content);
+
+        String adminToken = jsonObject.getString("token");
+        System.out.print(adminToken);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.get("/api//users/21808081")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer "+adminToken))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void updateUserInfo() throws Exception {
+        MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"id\": 21808080, \"password\": 8080}"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+        String content = result.getResponse().getContentAsString();
+        JSONObject jsonObject = new JSONObject(content);
+
+        String adminToken = jsonObject.getString("token");
+        System.out.print(adminToken);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.patch("/api/users/21808081")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer "+adminToken)
+                        .content("{\"name\": \"chen\", \"email\": \"chen@fudan.edu.cn\", \"phone\": \"15185199778\", \"address\": \"fudan\"}"))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void updateUserPassword() throws Exception {
+        MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"id\": 21808080, \"password\": 8080}"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+        String content = result.getResponse().getContentAsString();
+        JSONObject jsonObject = new JSONObject(content);
+
+        String adminToken = jsonObject.getString("token");
+        System.out.print(adminToken);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.patch("/api/users/21808081/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer "+adminToken)
+                        .content("{\"oldPassword\": \"8081\", \"newPassword\": \"8081\"}"))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getUserList() throws Exception {
+        MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"id\": 21808080, \"password\": 8080}"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+        String content = result.getResponse().getContentAsString();
+        JSONObject jsonObject = new JSONObject(content);
+
+        String adminToken = jsonObject.getString("token");
+        System.out.print(adminToken);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.get("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer "+adminToken))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void resetUserPassword() throws Exception {
+        MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"id\": 21808080, \"password\": 8080}"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+        String content = result.getResponse().getContentAsString();
+        JSONObject jsonObject = new JSONObject(content);
+
+        String adminToken = jsonObject.getString("token");
+        System.out.print(adminToken);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.patch("/api/admin/user/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer "+adminToken)
+                        .content("{\"id\": 21808081, \"newPassword\": \"8080\"}"))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(MockMvcRequestBuilders.patch("/api/admin/user/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer "+adminToken)
+                        .content("{\"id\": 21808081, \"newPassword\": \"8081\"}"))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void deleteUserById() throws Exception {
+        MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"id\": 21808080, \"password\": 8080}"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+        String content = result.getResponse().getContentAsString();
+        JSONObject jsonObject = new JSONObject(content);
+
+        String adminToken = jsonObject.getString("token");
+        System.out.print(adminToken);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/21909090")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer "+adminToken));
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"id\": \"21909090\", \"password\": 9090}")
+                        .header("Authorization", "Bearer "+adminToken))
+                .andDo(print())
+                .andExpect(status().is(201));
+
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/21909090")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer "+adminToken))
+                .andDo(print())
+                .andExpect(status().is(204));
     }
 }
