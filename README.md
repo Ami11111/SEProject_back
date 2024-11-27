@@ -356,4 +356,11 @@ Token的添加方法：
 Authorization: Bearer jwt
 ```
 
-其中`Authorization`为键，`Bearer jwt`为值,jwt可以向`/api/login`或者`/api/register`发送请求获取。注意中间的空格不要遗漏。
+其中`Authorization`为键，`Bearer jwt`为值,jwt可以向`/api/login`或者`/api/register`发送请求获取。注意中间的空格不要遗漏。 
+
+
+# Test
+参考链接：
+https://blog.csdn.net/cold___play/article/details/135732392  
+https://www.cnblogs.com/nizuimeiabc1/p/12173948.html
+
