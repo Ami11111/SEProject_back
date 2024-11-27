@@ -5,10 +5,12 @@ import com.library.backend.repository.PM_AdminRepository;
 import com.library.backend.repository.PM_UserRepository;
 import com.library.backend.utils.JwtUtil;
 import com.library.backend.controller.PM_UserController;
+import com.library.backend.service.JwtService;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.DigestUtils;
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,6 +41,9 @@ import org.json.JSONObject;
 public class PM_UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean //声明被修饰的组件将作为模拟组件，不使用真实组件
+    private JwtService jwtService;
 
     private String userToken;
 
