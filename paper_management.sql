@@ -115,10 +115,10 @@ insert into `author_paper` values
 # acronym：会议期刊简称
 # publisher：出版商
 # fund：基金
-# submitTime：提交时间
+# submitTime：提交时间（2024-10-10）
 # receiptTime：接收时间
 # publishTime：发表时间
-# type：论文类型
+# type：论文类型（regular、short、demo、poster）
 drop table if exists `paper_additional`;
 create table if not exists `paper_additional` (
   `doi` varchar(255) comment 'DOI',
