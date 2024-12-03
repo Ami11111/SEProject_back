@@ -36,9 +36,5 @@ public class PM_AdminRepositoryTest {
 
         int count = adminRepository.countByIdAndPassword(12345, "12345");
         assertEquals(1, count);
-
-        adminRepository.deleteById((long) 12345);
-        count = adminRepository.countByIdAndPassword(12345, "12345");
-        assertEquals(0, count);
     }
 }

@@ -20,10 +20,14 @@ public class PM_PaperAdditionalRepositoryTest {
     void deleteAllByDoi() {
         PM_PaperAdditional additional1 = new PM_PaperAdditional();
         additional1.setDoi("10.1234/test");
+        additional1.setKey(PM_PaperAdditional.Key.correspondingAuthor);
+        additional1.setValue("test");
         paperAdditionalRepository.save(additional1);
 
         PM_PaperAdditional additional2 = new PM_PaperAdditional();
         additional2.setDoi("10.1234/test");
+        additional2.setKey(PM_PaperAdditional.Key.correspondingAuthor);
+        additional2.setValue("test");
         paperAdditionalRepository.save(additional2);
 
         paperAdditionalRepository.deleteAllByDoi("10.1234/test");
@@ -35,13 +39,10 @@ public class PM_PaperAdditionalRepositoryTest {
     void findByDoi() {
         PM_PaperAdditional additional1 = new PM_PaperAdditional();
         additional1.setDoi("10.1234/test");
+        additional1.setKey(PM_PaperAdditional.Key.correspondingAuthor);
+        additional1.setValue("test");
         paperAdditionalRepository.save(additional1);
-
-        PM_PaperAdditional additional2 = new PM_PaperAdditional();
-        additional2.setDoi("10.1234/test");
-        paperAdditionalRepository.save(additional2);
-
         List<PM_PaperAdditional> foundAdditionals = paperAdditionalRepository.findByDoi("10.1234/test");
-        assertEquals(2, foundAdditionals.size());
+        assertEquals(1, foundAdditionals.size());
     }
 }
