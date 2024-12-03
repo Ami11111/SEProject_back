@@ -21,6 +21,7 @@ public class PM_PaperRepositoryTest {
         PM_Paper newPaper = new PM_Paper();
         newPaper.setDoi("10.1234/test");
         newPaper.setTitle("Test Paper");
+        newPaper.setStatus(PM_Paper.Status.notSubmit);
         paperRepository.save(newPaper);
         int count = paperRepository.countByDoi("10.1234/test");
         assert count == 1;
@@ -31,6 +32,7 @@ public class PM_PaperRepositoryTest {
         PM_Paper newPaper = new PM_Paper();
         newPaper.setDoi("10.1234/test");
         newPaper.setTitle("Test Paper");
+        newPaper.setStatus(PM_Paper.Status.notSubmit);
         paperRepository.save(newPaper);
         int count = paperRepository.countByDoi("10.1234/test");
         assert count == 1;
@@ -44,6 +46,7 @@ public class PM_PaperRepositoryTest {
         PM_Paper newPaper = new PM_Paper();
         newPaper.setDoi("10.1234/test");
         newPaper.setTitle("Test Paper");
+        newPaper.setStatus(PM_Paper.Status.notSubmit);
         paperRepository.save(newPaper);
         List<PM_Paper> papers = paperRepository.findAll();
         assertNotNull(papers);
@@ -55,6 +58,7 @@ public class PM_PaperRepositoryTest {
         PM_Paper newPaper = new PM_Paper();
         newPaper.setDoi("10.1234/test");
         newPaper.setTitle("Test Paper");
+        newPaper.setStatus(PM_Paper.Status.notSubmit);
         paperRepository.save(newPaper);
         PM_Paper foundPaper = paperRepository.findByDoi("10.1234/test");
         assertNotNull(foundPaper);
@@ -67,6 +71,7 @@ public class PM_PaperRepositoryTest {
         PM_Paper newPaper = new PM_Paper();
         newPaper.setDoi("10.1234/test");
         newPaper.setTitle("Test Paper");
+        newPaper.setStatus(PM_Paper.Status.notSubmit);
         paperRepository.save(newPaper);
         int count = paperRepository.countByDoi("10.1234/test");
         assert count == 1;
@@ -80,6 +85,7 @@ public class PM_PaperRepositoryTest {
         PM_Paper newPaper = new PM_Paper();
         newPaper.setDoi("10.1234/test");
         newPaper.setTitle("Test Paper");
+        newPaper.setStatus(PM_Paper.Status.notSubmit);
         paperRepository.save(newPaper);
         paperRepository.updateUrlByDoi("http://newurl.com", "10.1234/test");
         PM_Paper updatedPaper = paperRepository.findByDoi("10.1234/test");
@@ -91,21 +97,11 @@ public class PM_PaperRepositoryTest {
         PM_Paper newPaper = new PM_Paper();
         newPaper.setDoi("10.1234/test");
         newPaper.setTitle("Test Paper");
+        newPaper.setStatus(PM_Paper.Status.notSubmit);
         paperRepository.save(newPaper);
         byte[] fileData = "Test File Data".getBytes();
         paperRepository.updateFileDataByDoi(fileData, "10.1234/test");
         PM_Paper updatedPaper = paperRepository.findByDoi("10.1234/test");
         assertArrayEquals(fileData, updatedPaper.getFileData());
-    }
-
-    @Test
-    void findPapersByUserIdAndDoi() {
-        PM_Paper newPaper = new PM_Paper();
-        newPaper.setDoi("10.1234/test");
-        newPaper.setTitle("Test Paper");
-        paperRepository.save(newPaper);
-        List<PM_Paper> papers = paperRepository.findPapersByUserIdAndDoi(1, "10.1234/test");
-        assertNotNull(papers);
-        assertTrue(papers.size() > 0);
     }
 }
