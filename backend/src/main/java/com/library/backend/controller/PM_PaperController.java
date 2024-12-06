@@ -44,9 +44,6 @@ public class PM_PaperController {
     private PM_AdminRepository adminRepository;
 
     @Autowired
-    private PM_AuthorPaperRepository authorPaperRepository;
-
-    @Autowired
     private PM_PaperAdditionalRepository paperAdditionalRepository;
 
     @Autowired
