@@ -34,24 +34,13 @@ public class PM_PaperClaimApplicationController {
     private PM_AuthorPaperRepository authorPaperRepository;
 
     @Autowired
-    private PM_PaperAdditionalRepository paperAdditionalRepository;
-
-    @Autowired
     private PM_AuthorPaperClaimRepository authorPaperClaimRepository;
 
     @Autowired
     private PaperService paperService;
 
     @Autowired
-    private PaperClaimApplicationService paperClaimApplicationService;
-
-    @Autowired
     private JwtUtil jwtUtil;
-
-
-    @Autowired
-    private PaperUtil paperUtil;
-
 
     @PostMapping("/papers/request/claim")
     @ApiOperation(value = "用户认领论文")
