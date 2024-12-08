@@ -146,7 +146,7 @@ public class PM_PaperController {
     public ResponseEntity<Object> updatePaper(@Valid @RequestHeader("Authorization") String token, @PathVariable("doi") String doi, @RequestBody PaperDTO paperDTO) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // 401 无权限 用户或管理员不存在
+            // 401 无权限 非用户或管理员
             if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
